@@ -3,101 +3,37 @@
 
 #include "neslib.h"
 
-
+#define PRESSING(g,b)	((g&b)==b)
 #define SPR_PLAYER	0x42
-#define SPR_BALL	0x40
-#define DIR_N		0
-#define DIR_NE		1
-#define DIR_E		2
-#define DIR_SE		3
-#define DIR_S		4
-#define DIR_SW		5
-#define DIR_W		6
-#define DIR_WN		7
-
-//general purpose vars
 
 static unsigned char i,j;
 static unsigned char spr;
 
-//total number of balls on the screen
-//since there are 64 HW sprites, it is absolute max
-
-#define BALLS_MAX	63
-
-//balls parameters
-
-static unsigned char ball_x[BALLS_MAX];
-static unsigned char ball_y[BALLS_MAX];
-static unsigned char ball_dx[BALLS_MAX];
-static unsigned char ball_dy[BALLS_MAX];
+static unsigned char gamepad[] = {0, 0};
 static unsigned char player_x = 128;
 static unsigned char player_y = 128;
 
-
-//palette for balls, there are four sets for different ball colors
-
-const unsigned char palSprites[16]={
-	0x0f,0x17,0x27,0x37,
-	0x0f,0x11,0x21,0x31,
-	0x0f,0x15,0x25,0x35,
-	0x0f,0x19,0x29,0x39
+const unsigned char palSprites[]={
+	0x0f,0x30,0x27,0x16,
 };
-
-
 
 void main(void)
 {
-	pal_spr(palSprites);//set palette for sprites
+	pal_spr(palSprites);
 
-	ppu_on_all();//enable rendering
+	ppu_on_all();
 
-	//initialize balls parameters
-
-	for(i=0;i<BALLS_MAX;++i)
+	for (;;)
 	{
-		//starting coordinates
+		ppu_wait_frame();
+		// joystick inputs
+		for (i = 0; i < 2; gamepad[i] = pad_poll(i), i++);
 
-		ball_x[i]=rand8();
-		ball_y[i]=rand8();
 
-		//direction bits
-
-		j=rand8();
-
-		//horizontal speed -3..-3, excluding 0
-		spr=1+(rand8()%3);
-		ball_dx[i]=j&1?-spr:spr;
-
-		//vertical speed
-
-		spr=1+(rand8()%3);
-		ball_dy[i]=j&2?-spr:spr;
-	}
-
-	
-	//now the main loop
-
-	while(1)
-	{
-		ppu_wait_frame();//wait for next TV frame
-
-		spr=0;
-
-		/** PLAYER **/
-		spr = oam_spr(player_x, player_y, SPR_PLAYER, 0, spr);
-
-		/** BALLS **/
-		for(i=0;i<BALLS_MAX;++i)
-		{
-			//set a sprite for current ball
-
-			spr = oam_spr(ball_x[i],ball_y[i], SPR_BALL,i&3,spr);//0x40 is tile number, i&3 is palette
-
-			//move the ball
-
-			ball_x[i]+=ball_dx[i];
-			ball_y[i]+=ball_dy[i];
-		}
+		player_x += (PRESSING(gamepad[0], PAD_RIGHT) - PRESSING(gamepad[0], PAD_LEFT)) * 3;
+		player_y += (PRESSING(gamepad[0], PAD_DOWN) - PRESSING(gamepad[0], PAD_UP)) * 3;
+		
+		spr = 0;
+		spr = oam_spr(player_x - 16, player_y, SPR_PLAYER + player_x%2, 0, spr);
 	}
 }
