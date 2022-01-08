@@ -2,16 +2,7 @@
 //also shows how fast (or slow) C code is
 
 #include "neslib.h"
-
-#define PRESSING(g,b)	((g&b)==b)
-#define SPR_PLAYER	0x42
-
-static unsigned char i,j;
-static unsigned char spr;
-
-static unsigned char gamepad[] = {0, 0};
-static unsigned char player_x = 128;
-static unsigned char player_y = 128;
+#include "game.h"
 
 const unsigned char palSprites[]={
 	0x0f,0x30,0x27,0x16,
@@ -20,20 +11,41 @@ const unsigned char palSprites[]={
 void main(void)
 {
 	pal_spr(palSprites);
+	pal_col(1,0x30);
+	put_str(NTADR_A(1,27),"COCKS:   26");
+	put_str(NTADR_A(1,28),"PLAYERS: 2");
+	put_str(NTADR_A(18,27),"(SELECT) MENU");
+	put_str(NTADR_A(18,28),"(START) PAUSE");
+	put_arena();
 
 	ppu_on_all();
 
 	for (;;)
 	{
-		ppu_wait_frame();
-		// joystick inputs
-		for (i = 0; i < 2; gamepad[i] = pad_poll(i), i++);
-
-
-		player_x += (PRESSING(gamepad[0], PAD_RIGHT) - PRESSING(gamepad[0], PAD_LEFT)) * 3;
-		player_y += (PRESSING(gamepad[0], PAD_DOWN) - PRESSING(gamepad[0], PAD_UP)) * 3;
-		
 		spr = 0;
-		spr = oam_spr(player_x - 16, player_y, SPR_PLAYER + player_x%2, 0, spr);
+		ppu_wait_frame();
+
+		// joystick inputs
+		for (i = 0; i < MAX_PLAYERS; gamepad[i] = pad_poll(i), i++);
+
+		// player moves
+		for (i = 0; i < MAX_PLAYERS; i++) {
+			s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
+			players[i].sign = s != 0? s: players[i].sign;
+			players[i].x += s * SPEED;
+			players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) * SPEED;
+		}
+
+		// arena colision 
+		for (i = 0; i < MAX_ENIMIES; i++) {
+			players[i].x = CLAMP(players[i].x, MIN_ARENA_X, MAX_ARENA_X);
+			players[i].y = CLAMP(players[i].y, MIN_ARENA_Y, MAX_ARENA_Y);
+		}
+
+		// draw cocks
+		for (i = 0; i < MAX_ENIMIES; i++) {
+			s = SPR_PLAYER + (players[i].sign * ((((players[i].x ^ players[i].y)>>3)%2) + 1));
+			spr = oam_spr(players[i].x, players[i].y, s, 0, spr);
+		}
 	}
 }
