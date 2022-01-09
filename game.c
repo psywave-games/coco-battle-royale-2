@@ -12,11 +12,12 @@ void main(void)
 {
 	pal_spr(palSprites);
 	pal_col(1,0x30);
+	put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
+	put_logo();
 	put_str(NTADR_A(1,27),"COCKS:   26");
 	put_str(NTADR_A(1,28),"PLAYERS: 2");
 	put_str(NTADR_A(18,27),"(SELECT) MENU");
 	put_str(NTADR_A(18,28),"(START) PAUSE");
-	put_arena();
 
 	ppu_on_all();
 
