@@ -20,6 +20,7 @@ void main(void)
 	put_str(NTADR_A(18,28),"(START) PAUSE");
 
 	ppu_on_all();
+	spawn_cocks();
 
 	for (;;)
 	{
@@ -32,7 +33,7 @@ void main(void)
 		// player moves
 		for (i = 0; i < MAX_PLAYERS; i++) {
 			s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
-			players[i].sign = s != 0? s: players[i].sign;
+			players[i].anim.sign = s != 0? s: players[i].anim.sign;
 			players[i].x += s * SPEED;
 			players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) * SPEED;
 		}
@@ -45,7 +46,7 @@ void main(void)
 
 		// draw cocks
 		for (i = 0; i < MAX_ENIMIES; i++) {
-			s = SPR_PLAYER + (players[i].sign * ((((players[i].x ^ players[i].y)>>3)%2) + 1));
+			s = SPR_PLAYER + (players[i].anim.sign * ((((players[i].x ^ players[i].y)>>3)%2) + 1));
 			spr = oam_spr(players[i].x, players[i].y, s, 0, spr);
 		}
 	}
