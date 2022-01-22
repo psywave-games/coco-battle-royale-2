@@ -58,6 +58,13 @@
  * TYPES
  */
 
+enum fsm_game_e {
+	FSM_DRAW_MENU,
+	FSM_DRAW_ARENA,
+	FSM_MENU,
+	FSM_GAMEPLAY
+};
+
 union anim_u {
     signed char sign;
     unsigned char life;
@@ -83,10 +90,11 @@ const unsigned char palSprites[]={
 };
 
 /** GLOBAL VARIABLES **/
-static struct coco_s players[MAX_ENIMIES];
-static unsigned char gamepad[MAX_PLAYERS];
-static unsigned char two_players;
-static unsigned char seed;
+static struct coco_s players[MAX_ENIMIES];		/** all cocks entitys **/
+static unsigned char gamepad[MAX_PLAYERS];		/** joystick inputs **/
+static enum fsm_game_e gamestate;	            /** finite state machine **/
+static unsigned char two_players;				/** local multiplayer mode **/
+static unsigned char seed;						/** randomness control **/
 
 /** GENERAL VARIABLES **/
 static signed char s;
@@ -96,6 +104,12 @@ static unsigned char spr;
 /*
  * UTILS
  */
+void put_all(const char c)
+{
+    vram_adr(NTADR_A(0,1));
+    vram_fill(c, 32*28);
+}
+
 void put_str(unsigned int adr,const char *str)
 {
     vram_adr(adr);
@@ -180,47 +194,87 @@ void spawn_cocks()
 	}
 }
 
-
 void main(void)
 {
 	pal_spr(palSprites);
 	pal_col(1,0x30);
-	put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
-	put_logo();
-	put_str(NTADR_A(1,27),"COCKS:   26");
-	put_str(NTADR_A(1,28),"PLAYERS: 2");
-	put_str(NTADR_A(18,27),"(SELECT) MENU");
-	put_str(NTADR_A(18,28),"(START) PAUSE");
 
-	ppu_on_all();
-	spawn_cocks();
-
+	/** game loop **/
 	for (;;)
 	{
+		/** reset sprite count **/
 		spr = 0;
+
+		/** wait for next frame**/
 		ppu_wait_frame();
 
-		// joystick inputs
-		for (i = 0; i < MAX_PLAYERS; gamepad[i] = pad_poll(i), i++);
+		/** joystick inputs **/
+		for (i = 0; i <= two_players; gamepad[i] = pad_poll(i), i++);
+		
+		switch (gamestate) {
+            case FSM_DRAW_MENU:
+                ppu_off();
+				put_all(NULL);
+                put_logo();
+                put_str(NTADR_A(11,15), "1 PLAYERS");
+                put_str(NTADR_A(11,16), "2 PLAYERS");
+				ppu_on_all();
+				gamestate = FSM_MENU;
+                break;
 
-		// player moves
-		for (i = 0; i < MAX_PLAYERS; i++) {
-			s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
-			players[i].anim.sign = s != 0? s: players[i].anim.sign;
-			players[i].x += s * SPEED;
-			players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) * SPEED;
-		}
+			case FSM_DRAW_ARENA:
+				ppu_off();
+				put_all(NULL);
+                put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
+				put_str(NTADR_A(1,27),"COCKS:           (SELECT) MENU");
+				put_str(NTADR_A(1,28),"PLAYERS:         (START) PAUSE");
+				gamestate = FSM_GAMEPLAY;
+				ppu_on_all();
+				break;
 
-		// arena colision 
-		for (i = 0; i < MAX_ENIMIES; i++) {
-			players[i].x = CLAMP(players[i].x, MIN_ARENA_X, MAX_ARENA_X);
-			players[i].y = CLAMP(players[i].y, MIN_ARENA_Y, MAX_ARENA_Y);
-		}
+            case FSM_MENU:
+                /** select best seed by frame **/
+                seed = (seed + 1) % sizeof(good_seeds);
 
-		// draw cocks
-		for (i = 0; i < MAX_ENIMIES; i++) {
-			s = SPR_PLAYER + (players[i].anim.sign * ((((players[i].x ^ players[i].y)>>3)%2) + 1));
-			spr = oam_spr(players[i].x, players[i].y, s, 0, spr);
+                /** switch between multiplayer and singleplayer **/
+                if (gamepad[0] & (PAD_UP | PAD_DOWN) && s == 0) {
+                    two_players = two_players? 0: 1;
+                }
+
+                /** begin start the game **/
+                if (gamepad[0] & (PAD_A | PAD_START)) {
+				    gamestate = FSM_DRAW_ARENA;
+                    spawn_cocks();
+                }
+
+                /** draw option **/
+                oam_spr((10 * 8), (15 * 8) + (two_players << 3), '>', 0, 0);
+
+                /** old input **/
+                s = gamepad[0];
+                break;
+
+            case FSM_GAMEPLAY:
+                /** player moves **/
+                for (i = 0; i < MAX_PLAYERS; i++) {
+                    s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
+                    players[i].anim.sign = s != 0? s: players[i].anim.sign;
+                    players[i].x += s * SPEED;
+                    players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) * SPEED;
+                }
+                
+                /** arena colision **/ 
+                for (i = 0; i < MAX_ENIMIES; i++) {
+                    players[i].x = CLAMP(players[i].x, MIN_ARENA_X, MAX_ARENA_X);
+                    players[i].y = CLAMP(players[i].y, MIN_ARENA_Y, MAX_ARENA_Y);
+                }
+
+                /** draw cocks **/
+                for (i = 0; i < MAX_ENIMIES; i++) {
+                    s = SPR_PLAYER + (players[i].anim.sign * ((((players[i].x ^ players[i].y)>>3)%2) + 1));
+                    spr = oam_spr(players[i].x, players[i].y, s, 0, spr);
+                }
+                break;
 		}
 	}
 }
