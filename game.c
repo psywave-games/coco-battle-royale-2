@@ -65,7 +65,8 @@ enum fsm_game_e {
 	FSM_DRAW_MENU,
 	FSM_DRAW_ARENA,
 	FSM_MENU,
-	FSM_GAMEPLAY
+	FSM_GAMEPLAY,
+    FSM_RESTART
 };
 
 struct coco_s {
@@ -99,9 +100,11 @@ const unsigned char palSprites[]={
 /** GLOBAL VARIABLES **/
 static struct coco_s players[MAX_ENIMIES];		/** all cocks entitys **/
 static unsigned char gamepad[MAX_PLAYERS];		/** joystick inputs **/
+static unsigned char gamepad_old;               /** last frame joystick input **/
 static enum fsm_game_e gamestate;	            /** finite state machine **/
 static unsigned char two_players;				/** local multiplayer mode **/
 static unsigned char seed;						/** randomness control **/
+static unsigned char roosters;                  /** cocks count **/
 
 /** GENERAL VARIABLES **/
 static signed char s;
@@ -216,25 +219,32 @@ void main(void)
 		ppu_wait_frame();
 
 		/** joystick inputs **/
+        gamepad_old = gamepad[0];
 		for (i = 0; i <= two_players; gamepad[i] = pad_poll(i), i++);
 		
 		switch (gamestate) {
             case FSM_DRAW_MENU:
                 ppu_off();
+                oam_clear();
 				put_all(NULL);
                 put_logo();
-                put_str(NTADR_A(11,15), "1 PLAYERS");
-                put_str(NTADR_A(11,16), "2 PLAYERS");
+                put_str(NTADR_A(11,16), "1 PLAYERS");
+                put_str(NTADR_A(11,17), "2 PLAYERS");
+                if (roosters) {
+                    put_str(NTADR_A(11,15), "CONTINUE");
+                }
 				ppu_on_all();
 				gamestate = FSM_MENU;
                 break;
 
 			case FSM_DRAW_ARENA:
 				ppu_off();
+                oam_clear();
 				put_all(NULL);
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
-				put_str(NTADR_A(1,27),"COCKS:           (SELECT) MENU");
-				put_str(NTADR_A(1,28),"PLAYERS:         (START) PAUSE");
+				put_str(NTADR_A(1,27),"COCKS:              PLAYERS:");
+				put_str(NTADR_A(1,28),"PRESS (START) FOR NEW BATTLE!");
+                vram_adr_put(29, 27, '1' + two_players);
 				gamestate = FSM_GAMEPLAY;
 				ppu_on_all();
 				break;
@@ -243,25 +253,53 @@ void main(void)
                 /** select best seed by frame **/
                 seed = (seed + 1) % sizeof(good_seeds);
 
-                /** switch between multiplayer and singleplayer **/
-                if (gamepad[0] & (PAD_UP | PAD_DOWN) && s == 0) {
-                    two_players = two_players? 0: 1;
+                /** switch between resume, singleplayers and multiplayer **/
+                if (gamepad_old == 0) {
+                    s = s + (PRESSING(gamepad[0], PAD_DOWN) - PRESSING(gamepad[0], PAD_UP));
                 }
+
+                /** Limit menu options **/
+                s = CLAMP(s, roosters == 0, 2);
 
                 /** begin start the game **/
                 if (gamepad[0] & (PAD_A | PAD_START)) {
-				    gamestate = FSM_DRAW_ARENA;
-                    spawn_cocks();
+				    switch (s) {
+                        case 0:
+                            gamestate = FSM_DRAW_ARENA;
+                            break;
+
+                        case 1:
+                            two_players = 0;
+                            gamestate = FSM_RESTART;
+                            break;
+
+                        case 2:
+                            two_players = 1;
+                            gamestate = FSM_RESTART;
+                            break;
+                    }
                 }
 
                 /** draw option **/
-                oam_spr((10 * 8), (15 * 8) + (two_players << 3), '>', 0, 0);
-
-                /** old input **/
-                s = gamepad[0];
+                oam_spr((10 * 8), (15 * 8) + (s << 3), '>', 0, 0);
                 break;
 
             case FSM_GAMEPLAY:
+                /** pause options **/
+                if (gamepad_old == 0) {
+                    /** restart game **/
+                    if ((gamepad[0] & PAD_START)) {
+                        gamestate = FSM_RESTART;
+                        break;
+                    }
+
+                    /** back to main menu **/
+                    if ((gamepad[0] & PAD_SELECT)) {
+                        gamestate = FSM_DRAW_MENU;
+                        break;
+                    }
+                }
+
                 /** player moves **/
                 for (i = 0; i < MAX_PLAYERS; i++) {
                     s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
@@ -278,10 +316,23 @@ void main(void)
                 }
 
                 /** draw cocks **/
-                for (i = 0; i < MAX_ENIMIES; i++) {
+                for (i = 0, roosters = 0; i < MAX_ENIMIES; i++) {
                     j = i <= two_players? i: 2; /** set color **/
+                    roosters += players[i].info.sprite != -1; /** count coocks existents **/
                     spr = oam_spr(players[i].x, players[i].y, SPR_PLAYER + players[i].info.sprite, j, spr);
                 }
+
+                /** draw number of coocks **/
+                spr = oam_spr((7 * 8), (27 * 8), '0' + (roosters / 10), 0, spr);
+                spr = oam_spr((8 * 8), (27 * 8), '0' + (roosters % 10), 0, spr);
+                break;
+
+            case FSM_RESTART:
+                /** reset player status **/
+                for (i = 0; i < MAX_ENIMIES; players[i].info.sprite = 0, i++);
+                seed = (seed + 1) % sizeof(good_seeds);
+                gamestate = FSM_DRAW_ARENA;
+                spawn_cocks();
                 break;
 		}
 	}
