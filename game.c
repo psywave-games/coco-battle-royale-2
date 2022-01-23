@@ -24,8 +24,7 @@
 
 #define MAX_ENIMIES                     (20)
 #define MAX_PLAYERS                     (2)
-#define	PI						        (3)
-#define SPEED                           (3)
+#define SPEED                           (2)
 #define MIN_ARENA_X                     (6)
 #define MAX_ARENA_X                     (242)
 #define MID_ARENA_X                     ((MAX_ARENA_X/2)+MIN_ARENA_X)
@@ -43,7 +42,6 @@
 #define SEED_UNPACK(v)                  ((unsigned int)(v+256))
 #define ABS(v)                          (v<0?-v:v)
 #define POW(v)                          (v*v)
-#define DISTANCE(x1,y1,x2,y2)	        ((char)(ABS((int)x1-(int)x2)+ABS((int)y1-(int)y2)))
 #define PRESSING(g,b)			        ((g&b)==b)
 #define CLAMP(v,min,max)                (MIN(max,MAX(min,v)))
 #define vram_adr_put(x,y,s)             {vram_adr(NTADR_A(x,y));vram_put(s);}
@@ -303,8 +301,8 @@ void main(void)
                 /** player moves **/
                 for (i = 0; i < MAX_PLAYERS; i++) {
                     s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
-                    players[i].x += s * SPEED;
-                    players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) * SPEED;
+                    players[i].x += s << SPEED;
+                    players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) << SPEED;
                     players[i].info.status.flipped = (s != 0)? (s == -1): !!players[i].info.status.flipped;
                     players[i].info.status.walking = (players[i].x ^ players[i].y)>>3;
                 }
