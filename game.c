@@ -33,6 +33,8 @@
 #define MAX_ARENA_Y                     (200)
 #define MID_ARENA_Y                     ((MAX_ARENA_Y/2)+MIN_ARENA_Y)
 #define RANGE_ARENA                     (40)
+#define LOOK_RIGHT                      (0)
+#define LOOK_LEFT                       (1)
 
 /**
  * FUNCTIONS
@@ -49,7 +51,8 @@
 /**
  *  SPRITES
  */
-#define SPR_PLAYER				        0x05
+#define SPR_PLAYER_DEAD                 0x00
+#define SPR_PLAYER				        0x01
 #define SPR_EDGE                        0x6C
 #define SPR_LOGO                        0x60
 #define SPR_BONE                        0x6D
@@ -65,15 +68,17 @@ enum fsm_game_e {
 	FSM_GAMEPLAY
 };
 
-union anim_u {
-    signed char sign;
-    unsigned char life;
-};
-
 struct coco_s {
     unsigned char x;
     unsigned char y;
-    union anim_u anim;
+    union {
+        signed char sprite;
+        struct {
+            unsigned char attacking: 1;
+            unsigned char flipped: 1;
+            unsigned char walking: 1;
+        } status;
+    } info;
 };
 
 /** GLOBAL CONSTANTS **/
@@ -87,6 +92,8 @@ static const unsigned char good_seeds[] = {
 
 const unsigned char palSprites[]={
 	0x0f,0x30,0x27,0x16,
+	0x0f,0x27,0x30,0x16,
+	0x0f,0x2D,0x27,0x16,
 };
 
 /** GLOBAL VARIABLES **/
@@ -190,7 +197,7 @@ void spawn_cocks()
             && players[i].y > MID_ARENA_Y - RANGE_ARENA &&  players[i].y < MID_ARENA_Y + RANGE_ARENA
         );
         // look to center
-        players[i].anim.sign = players[i].x > MID_ARENA_X? -1: 1;
+        players[i].info.status.flipped = players[i].x > MID_ARENA_X? LOOK_LEFT: LOOK_RIGHT;
 	}
 }
 
@@ -258,9 +265,10 @@ void main(void)
                 /** player moves **/
                 for (i = 0; i < MAX_PLAYERS; i++) {
                     s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
-                    players[i].anim.sign = s != 0? s: players[i].anim.sign;
                     players[i].x += s * SPEED;
                     players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) * SPEED;
+                    players[i].info.status.flipped = (s != 0)? (s == -1): !!players[i].info.status.flipped;
+                    players[i].info.status.walking = (players[i].x ^ players[i].y)>>3;
                 }
                 
                 /** arena colision **/ 
@@ -271,8 +279,8 @@ void main(void)
 
                 /** draw cocks **/
                 for (i = 0; i < MAX_ENIMIES; i++) {
-                    s = SPR_PLAYER + (players[i].anim.sign * ((((players[i].x ^ players[i].y)>>3)%2) + 1));
-                    spr = oam_spr(players[i].x, players[i].y, s, 0, spr);
+                    j = i <= two_players? i: 2; /** set color **/
+                    spr = oam_spr(players[i].x, players[i].y, SPR_PLAYER + players[i].info.sprite, j, spr);
                 }
                 break;
 		}
