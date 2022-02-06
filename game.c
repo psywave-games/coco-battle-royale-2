@@ -36,6 +36,8 @@
 #define LOOK_LEFT                       (1)
 #define PLAYER_1                        (0)
 #define PLAYER_2                        (1)
+#define FRAME_ATTACKING                 (6)
+#define FRAME_RECOVERY                  (1)
 
 /**
  * FUNCTIONS
@@ -73,6 +75,7 @@ enum fsm_game_e {
 struct coco_s {
     unsigned char x;
     unsigned char y;
+    unsigned char framedata;
     union {
         signed char sprite;
         struct {
@@ -101,7 +104,7 @@ const unsigned char palSprites[]={
 /** GLOBAL VARIABLES **/
 static struct coco_s players[MAX_ENIMIES];		/** all cocks entitys **/
 static unsigned char gamepad[MAX_PLAYERS];		/** joystick inputs **/
-static unsigned char gamepad_old;               /** last frame joystick input **/
+static unsigned char gamepad_old[MAX_PLAYERS];  /** last frame joysticks inputs **/
 static enum fsm_game_e gamestate;	            /** finite state machine **/
 static unsigned char two_players;				/** local multiplayer mode **/
 static unsigned char seed;						/** randomness control **/
@@ -220,8 +223,12 @@ void main(void)
 		ppu_wait_frame();
 
 		/** joystick inputs **/
-        gamepad_old = gamepad[0];
-		for (i = 0; i <= two_players; gamepad[i] = pad_poll(i), i++);
+        for (
+            i = 0; i <= two_players;
+            gamepad_old[i] = gamepad[i],
+            gamepad[i] = pad_poll(i),
+            i++
+        );
 		
 		switch (gamestate) {
             case FSM_DRAW_MENU:
@@ -255,15 +262,15 @@ void main(void)
                 seed = (seed + 1) % sizeof(good_seeds);
 
                 /** switch between resume, singleplayers and multiplayer **/
-                if (gamepad_old == 0) {
-                    s = s + (PRESSING(gamepad[0], PAD_DOWN) - PRESSING(gamepad[0], PAD_UP));
+                if (gamepad_old[PLAYER_1] == 0) {
+                    s = s + (PRESSING(gamepad[PLAYER_1], PAD_DOWN) - PRESSING(gamepad[PLAYER_1], PAD_UP));
                 }
 
                 /** Limit menu options **/
                 s = CLAMP(s, roosters == 0, 2);
 
                 /** begin start the game **/
-                if (gamepad[0] & (PAD_A | PAD_START)) {
+                if (gamepad[PLAYER_1] & (PAD_A | PAD_START)) {
 				    switch (s) {
                         case 0:
                             gamestate = FSM_DRAW_ARENA;
@@ -287,21 +294,21 @@ void main(void)
 
             case FSM_GAMEPLAY:
                 /** pause options **/
-                if (gamepad_old == 0) {
+                if (gamepad_old[PLAYER_1] == 0) {
                     /** restart game **/
-                    if ((gamepad[0] & PAD_START)) {
+                    if ((gamepad[PLAYER_1] & PAD_START)) {
                         gamestate = FSM_RESTART;
                         break;
                     }
 
                     /** back to main menu **/
-                    if ((gamepad[0] & PAD_SELECT)) {
+                    if ((gamepad[PLAYER_1] & PAD_SELECT)) {
                         gamestate = FSM_DRAW_MENU;
                         break;
                     }
                 }
 
-                /** mediator loop **/
+                /** entitys loop **/
                 for (i = 0; i < MAX_ENIMIES; i++) {
                     
                     /** player input **/
@@ -309,6 +316,11 @@ void main(void)
                         s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
                         players[i].x += s << SPEED;
                         players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) << SPEED;
+                        if (PRESSING(gamepad[i], PAD_A) && !PRESSING(gamepad_old[i], PAD_A) && players[i].framedata == 0) {
+                            players[i].framedata = FRAME_ATTACKING;
+                            players[i].info.status.attacking = 1;
+                        }
+                    
                     } 
                     /** npc input **/
                     else {
@@ -318,11 +330,16 @@ void main(void)
                     /** animation sprite **/
                     players[i].info.status.flipped = (s != 0)? (s == -1): !!players[i].info.status.flipped;
                     players[i].info.status.walking = (players[i].x ^ players[i].y)>>3;
+                    players[i].info.status.attacking = players[i].framedata > FRAME_RECOVERY;
 
                     /** arena colision **/
                     players[i].x = CLAMP(players[i].x, MIN_ARENA_X, MAX_ARENA_X);
                     players[i].y = CLAMP(players[i].y, MIN_ARENA_Y, MAX_ARENA_Y);
 
+                    /** mediator **/
+                    if (players[i].framedata) {
+                        players[i].framedata -= 1;
+                    }
 
                     /** draw cocks **/
                     switch (i) {
