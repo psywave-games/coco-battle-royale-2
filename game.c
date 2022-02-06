@@ -34,6 +34,8 @@
 #define RANGE_ARENA                     (40)
 #define LOOK_RIGHT                      (0)
 #define LOOK_LEFT                       (1)
+#define PLAYER_1                        (0)
+#define PLAYER_2                        (1)
 
 /**
  * FUNCTIONS
@@ -54,6 +56,7 @@
 #define SPR_EDGE                        0x6C
 #define SPR_LOGO                        0x60
 #define SPR_BONE                        0x6D
+#define SPR_POINTER                     0x09
 
 /**
  * TYPES
@@ -298,26 +301,43 @@ void main(void)
                     }
                 }
 
-                /** player moves **/
-                for (i = 0; i < MAX_PLAYERS; i++) {
-                    s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
-                    players[i].x += s << SPEED;
-                    players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) << SPEED;
+                /** mediator loop **/
+                for (i = 0; i < MAX_ENIMIES; i++) {
+                    
+                    /** player input **/
+                    if (i <= two_players) {
+                        s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
+                        players[i].x += s << SPEED;
+                        players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) << SPEED;
+                    } 
+                    /** npc input **/
+                    else {
+                        s = 0;
+                    }
+
+                    /** animation sprite **/
                     players[i].info.status.flipped = (s != 0)? (s == -1): !!players[i].info.status.flipped;
                     players[i].info.status.walking = (players[i].x ^ players[i].y)>>3;
-                }
-                
-                /** arena colision **/ 
-                for (i = 0; i < MAX_ENIMIES; i++) {
+
+                    /** arena colision **/
                     players[i].x = CLAMP(players[i].x, MIN_ARENA_X, MAX_ARENA_X);
                     players[i].y = CLAMP(players[i].y, MIN_ARENA_Y, MAX_ARENA_Y);
-                }
 
-                /** draw cocks **/
-                for (i = 0, roosters = 0; i < MAX_ENIMIES; i++) {
-                    j = i <= two_players? i: 2; /** set color **/
-                    roosters += players[i].info.sprite != -1; /** count coocks existents **/
-                    spr = oam_spr(players[i].x, players[i].y, SPR_PLAYER + players[i].info.sprite, j, spr);
+
+                    /** draw cocks **/
+                    switch (i) {
+                        case PLAYER_2:
+                        if (two_players) {
+                        case PLAYER_1:
+                            spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
+                            spr = oam_spr(players[i].x, players[i].y, SPR_PLAYER + players[i].info.sprite, i, spr);
+                            break;
+                        }
+
+                        default:
+                            spr = oam_spr(players[i].x, players[i].y, SPR_PLAYER + players[i].info.sprite, 2, spr);
+                            break;
+                    }
                 }
 
                 /** draw number of coocks **/
