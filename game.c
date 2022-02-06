@@ -24,7 +24,7 @@
 
 #define MAX_ENIMIES                     (20)
 #define MAX_PLAYERS                     (2)
-#define SPEED                           (2)
+#define SPEED                           (1)
 #define MIN_ARENA_X                     (6)
 #define MAX_ARENA_X                     (242)
 #define MID_ARENA_X                     ((MAX_ARENA_X/2)+MIN_ARENA_X)
@@ -36,8 +36,9 @@
 #define LOOK_LEFT                       (1)
 #define PLAYER_1                        (0)
 #define PLAYER_2                        (1)
+#define FRAME_PREPARE                   (7)
 #define FRAME_ATTACKING                 (6)
-#define FRAME_RECOVERY                  (1)
+#define FRAME_RECOVERY                  (2)
 
 /**
  * FUNCTIONS
@@ -48,12 +49,13 @@
 #define POW(v)                          (v*v)
 #define PRESSING(g,b)			        ((g&b)==b)
 #define CLAMP(v,min,max)                (MIN(max,MAX(min,v)))
+#define DISTANCE(a,b)                   (a>b?a-b:b-a)
 #define vram_adr_put(x,y,s)             {vram_adr(NTADR_A(x,y));vram_put(s);}
 
 /**
  *  SPRITES
  */
-#define SPR_PLAYER_DEAD                 0x00
+#define SPR_PLAYER_DEAD                 -0x1
 #define SPR_PLAYER				        0x01
 #define SPR_EDGE                        0x6C
 #define SPR_LOGO                        0x60
@@ -308,8 +310,18 @@ void main(void)
                     }
                 }
 
+                /** recount **/
+                roosters = 0;
+
                 /** entitys loop **/
                 for (i = 0; i < MAX_ENIMIES; i++) {
+                    /** out of game **/
+                    if (players[i].info.sprite == SPR_PLAYER_DEAD) {
+                        continue;
+                    }
+
+                    /** number of coocks alive **/
+                    roosters += 1;
                     
                     /** player input **/
                     if (i <= two_players) {
@@ -317,7 +329,7 @@ void main(void)
                         players[i].x += s << SPEED;
                         players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) << SPEED;
                         if (PRESSING(gamepad[i], PAD_A) && !PRESSING(gamepad_old[i], PAD_A) && players[i].framedata == 0) {
-                            players[i].framedata = FRAME_ATTACKING;
+                            players[i].framedata = FRAME_PREPARE;
                             players[i].info.status.attacking = 1;
                         }
                     
@@ -330,7 +342,7 @@ void main(void)
                     /** animation sprite **/
                     players[i].info.status.flipped = (s != 0)? (s == -1): !!players[i].info.status.flipped;
                     players[i].info.status.walking = (players[i].x ^ players[i].y)>>3;
-                    players[i].info.status.attacking = players[i].framedata > FRAME_RECOVERY;
+                    players[i].info.status.attacking = players[i].framedata < FRAME_ATTACKING && players[i].framedata > FRAME_RECOVERY;
 
                     /** arena colision **/
                     players[i].x = CLAMP(players[i].x, MIN_ARENA_X, MAX_ARENA_X);
@@ -339,6 +351,29 @@ void main(void)
                     /** mediator **/
                     if (players[i].framedata) {
                         players[i].framedata -= 1;
+                        for (j = 0; j < MAX_ENIMIES; j++) {
+                            /** end of attack **/
+                            if (!players[i].info.status.attacking) {
+                                break;
+                            }
+                            /** not attacking itself **/
+                            if (i == j) {
+                                continue;
+                            }
+                            /** blocking attack **/
+                            if (players[j].framedata) {
+                                continue;
+                            }
+                            /** pidgeot is fainted dude **/
+                            if (players[j].info.sprite == SPR_PLAYER_DEAD) {
+                                continue;
+                            }
+                            /** far far away **/
+                            if (DISTANCE(players[i].x, players[j].x) > 8 || DISTANCE(players[i].y, players[j].y) > 8) {
+                                continue;
+                            }
+                            players[j].info.sprite = SPR_PLAYER_DEAD;
+                        }
                     }
 
                     /** draw cocks **/
@@ -360,6 +395,7 @@ void main(void)
                 /** draw number of coocks **/
                 spr = oam_spr((7 * 8), (27 * 8), '0' + (roosters / 10), 0, spr);
                 spr = oam_spr((8 * 8), (27 * 8), '0' + (roosters % 10), 0, spr);
+                oam_hide_rest(spr);
                 break;
 
             case FSM_RESTART:
