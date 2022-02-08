@@ -60,7 +60,7 @@
 #define SPR_EDGE                        0x6C
 #define SPR_LOGO                        0x60
 #define SPR_BONE                        0x6D
-#define SPR_POINTER                     0x09
+#define SPR_POINTER                     0x0D
 
 /**
  * TYPES
@@ -81,9 +81,10 @@ struct coco_s {
     union {
         signed char sprite;
         struct {
-            unsigned char attacking: 1;
-            unsigned char flipped: 1;
             unsigned char walking: 1;
+            unsigned char flipped: 1;
+            unsigned char attacking: 1;
+            unsigned char recovering: 1;
         } status;
     } info;
 };
@@ -343,6 +344,7 @@ void main(void)
                     players[i].info.status.flipped = (s != 0)? (s == -1): !!players[i].info.status.flipped;
                     players[i].info.status.walking = (players[i].x ^ players[i].y)>>3;
                     players[i].info.status.attacking = players[i].framedata < FRAME_ATTACKING && players[i].framedata > FRAME_RECOVERY;
+                    players[i].info.status.recovering = players[i].framedata && !players[i].info.status.attacking;
 
                     /** arena colision **/
                     players[i].x = CLAMP(players[i].x, MIN_ARENA_X, MAX_ARENA_X);
