@@ -74,6 +74,17 @@ enum fsm_game_e {
     FSM_RESTART
 };
 
+enum fsm_ia_e {
+    FSM_DEFAULT,
+    FSM_RANDOM,
+    FSM_SLEEP,
+    FSM_HUNTER_WAIT,
+    FSM_HUNTER,
+    FSM_SCAPE_WAIT,
+    FSM_SCAPE,
+    FSM_WINNER
+};
+
 struct coco_s {
     unsigned char x;
     unsigned char y;
@@ -89,6 +100,12 @@ struct coco_s {
     } info;
 };
 
+struct npc_ia_s {
+    unsigned char target;
+    unsigned char input;   
+    enum fsm_ia_e state;
+};
+
 struct framecount_s {
     unsigned char frames: 2;
     unsigned char hunter_last: 2;
@@ -96,6 +113,13 @@ struct framecount_s {
 };
 
 /** GLOBAL CONSTANTS **/
+static const unsigned char npc_groups[] = {
+    0, 0, 0, 1, 2,
+    3, 0, 1, 2, 3,
+    3, 0, 1, 2, 3,
+    3, 0, 1, 2, 3,
+};
+
 static const unsigned char good_seeds[] = {
     SEED_PACK(283), SEED_PACK(285), SEED_PACK(499),
     SEED_PACK(301), SEED_PACK(305), SEED_PACK(274),
@@ -111,6 +135,7 @@ const unsigned char palSprites[]={
 };
 
 /** GLOBAL VARIABLES **/
+static struct npc_ia_s npcs[MAX_ENIMIES];       /** IA controll **/
 static struct framecount_s framecount;          /** IA manager groups **/
 static struct coco_s players[MAX_ENIMIES];		/** all cocks entitys **/
 static unsigned char gamepad[MAX_PLAYERS];		/** joystick inputs **/
@@ -244,6 +269,11 @@ void ia_hunter_cycle()
     }    
 }
 
+void ia_process(unsigned char npc)
+{
+    npcs[npc].input = rand8();
+}
+
 void main(void)
 {
 	pal_spr(palSprites);
@@ -361,18 +391,54 @@ void main(void)
                     
                     /** player input **/
                     if (i <= two_players) {
-                        s = PRESSING(gamepad[i], PAD_RIGHT) - PRESSING(gamepad[i], PAD_LEFT);
-                        players[i].x += s << SPEED;
-                        players[i].y += (PRESSING(gamepad[i], PAD_DOWN) - PRESSING(gamepad[i], PAD_UP)) << SPEED;
-                        if (PRESSING(gamepad[i], PAD_A) && !PRESSING(gamepad_old[i], PAD_A) && players[i].framedata == 0) {
+                        if(gamepad[i] & PAD_LEFT) {
+                            players[i].x -= 1 << SPEED;
+                            s = -1;
+                        }
+                        else if(gamepad[i] & PAD_RIGHT) {
+                            players[i].x += 1 << SPEED;
+                            s = 1;
+                        } else {
+                            s = 0;
+                        }
+                        if(gamepad[i] & PAD_UP) {
+                            players[i].y -= 1 << SPEED;
+                        }
+                        else if(gamepad[i] & PAD_DOWN) {
+                            players[i].y += 1 << SPEED;
+                        }
+                        if ((gamepad[i] & PAD_A) && !(gamepad_old[i] & PAD_A) && players[i].framedata == 0) {
                             players[i].framedata = FRAME_PREPARE;
                             players[i].info.status.attacking = 1;
                         }
-                    
                     } 
-                    /** npc input **/
-                    else {
+                    /** npc think input **/
+                    else if (framecount.frames == npc_groups[i]) {
+                        ia_process(i);
                         s = 0;
+                    }
+                    /** npc excute input **/
+                    else {
+                        if(npcs[i].input & PAD_LEFT) {
+                            players[i].x -= 1 << SPEED;
+                            s = -1;
+                        }
+                        else if(npcs[i].input & PAD_RIGHT) {
+                            players[i].x += 1 << SPEED;
+                            s = 1;
+                        } else {
+                            s = 0;
+                        }
+                        if(npcs[i].input & PAD_UP) {
+                            players[i].y -= 1 << SPEED;
+                        }
+                        else if(npcs[i].input & PAD_DOWN) {
+                            players[i].y += 1 << SPEED;
+                        }
+                        if (npcs[i].input & PAD_A) {
+                            players[i].framedata = FRAME_PREPARE;
+                            players[i].info.status.attacking = 1;
+                        }
                     }
 
                     /** animation sprite **/
