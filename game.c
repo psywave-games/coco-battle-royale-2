@@ -89,6 +89,12 @@ struct coco_s {
     } info;
 };
 
+struct framecount_s {
+    unsigned char frames: 2;
+    unsigned char hunter_last: 2;
+    unsigned char hunter_step: 4;
+};
+
 /** GLOBAL CONSTANTS **/
 static const unsigned char good_seeds[] = {
     SEED_PACK(283), SEED_PACK(285), SEED_PACK(499),
@@ -105,6 +111,7 @@ const unsigned char palSprites[]={
 };
 
 /** GLOBAL VARIABLES **/
+static struct framecount_s framecount;          /** IA manager groups **/
 static struct coco_s players[MAX_ENIMIES];		/** all cocks entitys **/
 static unsigned char gamepad[MAX_PLAYERS];		/** joystick inputs **/
 static unsigned char gamepad_old[MAX_PLAYERS];  /** last frame joysticks inputs **/
@@ -211,6 +218,32 @@ void spawn_cocks()
 	}
 }
 
+void ia_hunter_cycle()
+{
+    /** verify cycle is completed **/
+    if (framecount.hunter_last == framecount.frames) {
+        return;
+    }
+
+    /** verify steps to execute **/
+    if (++framecount.hunter_step) {
+        return;
+    }
+    
+    /** next group **/
+    framecount.hunter_last += 1;
+
+    /** search by hunter **/
+    for (j = framecount.hunter_last; j < MAX_ENIMIES; j += 4) {
+        /** finded **/
+        //if (npcs_ia[j].state == FSM_HUNTER_WAIT) {
+            /** nest victim **/
+            //ia_find_nest(j);
+            //break;
+        //}
+    }    
+}
+
 void main(void)
 {
 	pal_spr(palSprites);
@@ -223,7 +256,7 @@ void main(void)
 		spr = 0;
 
 		/** wait for next frame**/
-		ppu_wait_frame();
+		ppu_wait_nmi();
 
 		/** joystick inputs **/
         for (
@@ -311,8 +344,10 @@ void main(void)
                     }
                 }
 
-                /** recount **/
+                /** preapare **/
                 roosters = 0;
+                framecount.frames++;
+                ia_hunter_cycle();
 
                 /** entitys loop **/
                 for (i = 0; i < MAX_ENIMIES; i++) {
