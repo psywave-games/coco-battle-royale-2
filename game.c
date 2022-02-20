@@ -442,10 +442,13 @@ void main(void)
                     }
 
                     /** animation sprite **/
-                    players[i].info.status.flipped = (s != 0)? (s == -1): !!players[i].info.status.flipped;
                     players[i].info.status.walking = (players[i].x ^ players[i].y)>>3;
                     players[i].info.status.attacking = players[i].framedata < FRAME_ATTACKING && players[i].framedata > FRAME_RECOVERY;
                     players[i].info.status.recovering = players[i].framedata && !players[i].info.status.attacking;
+                    switch (s) {
+                        case 1: players[i].info.status.flipped = 0; break;
+                        case -1: players[i].info.status.flipped = 1; break;
+                    }
 
                     /** arena colision **/
                     players[i].x = CLAMP(players[i].x, MIN_ARENA_X, MAX_ARENA_X);
