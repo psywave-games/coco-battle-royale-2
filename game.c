@@ -300,7 +300,7 @@ void ia_process(unsigned char npc)
             break;
 
         case FSM_HUNTER:
-            if (players[j].info.sprite == SPR_PLAYER_DEAD || (roosters_total > 1 && rand8() < 10)) {
+            if (players[j].info.sprite == SPR_PLAYER_DEAD || (roosters_total > 2 && rand8() < 10)) {
                 npcs[npc].state = FSM_RANDOM;
                 break;
             }
