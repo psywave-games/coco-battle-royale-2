@@ -62,6 +62,7 @@
 #define SPR_LOGO                        0x60
 #define SPR_BONE                        0x6D
 #define SPR_POINTER                     0x0D
+#define SPR_LOGO_JAP                    0xC0
 
 /**
  * TYPES
@@ -146,6 +147,7 @@ static unsigned char two_players;				/** local multiplayer mode **/
 static unsigned char seed;						/** randomness control **/
 static unsigned char roosters_count;            /** cocks counter **/
 static unsigned char roosters_total;            /** total of cocks arrive **/
+static unsigned char jp;                        /** japanese version **/
 
 /** GENERAL VARIABLES **/
 static signed char s;
@@ -193,6 +195,26 @@ void put_logo()
     /** adjust position on screen **/
     const unsigned char pivot_x = 7;
     const unsigned char pivot_y = 5;
+
+    /** JAP VERSION **/
+    if (jp) {
+        /** draw text **/
+        for (i = 0; i < 4; i++) for (j = 0; j < 14; j++) {
+            vram_adr(NTADR_A(pivot_x + j + 3, pivot_y + i));
+            vram_put(SPR_LOGO_JAP + (i * 0x10) + j);
+        }
+
+        /** repeat first hideogram**/
+        for (i = 0; i < 4; i++) for (j = 0; j < 3; j++) {
+            vram_adr(NTADR_A(pivot_x + j, pivot_y + i));
+            vram_put(SPR_LOGO_JAP + (i * 0x10) + j);
+        }
+        put_str(NTADR_A(pivot_x, pivot_y + 4), "   COCO BATTLE   ");
+        put_str(NTADR_A(pivot_x, pivot_y + 5), "    ROYALE II    ");
+
+        put_ret(pivot_x -1, pivot_y - 1, pivot_x + 16, pivot_y + 5);
+        return;
+    }
 
     /** draw text **/
     for (i = 0; i < 7; i++) for (j = 0; j < 12; j++) {
@@ -350,6 +372,7 @@ void main(void)
 {
 	pal_spr(palSprites);
 	pal_col(1,0x30);
+	pal_col(2,0x27);
 
 	/** game loop **/
 	for (;;)
