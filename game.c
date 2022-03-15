@@ -56,16 +56,14 @@
 /**
  *  SPRITES
  */
-#define SPR_PLAYER_DEAD                 -0x1
-#define SPR_PLAYER				        0x01
 #define SPR_EDGE                        0x6C
 #define SPR_LOGO                        0x60
 #define SPR_BONE                        0x6D
-#define SPR_POINTER                     0x0D
+#define SPR_POINTER                     0x1C
 #define SPR_LOGO_JAP                    0xC0
 
 /**
- * TYPES
+ * TYPESaa
  */
 
 enum fsm_game_e {
@@ -98,6 +96,7 @@ struct coco_s {
             unsigned char flipped: 1;
             unsigned char attacking: 1;
             unsigned char recovering: 1;
+            unsigned char health: 1;
         } status;
     } info;
 };
@@ -265,6 +264,7 @@ void spawn_cocks()
         );
         // look to center
         players[i].info.status.flipped = players[i].x > MID_ARENA_X? LOOK_LEFT: LOOK_RIGHT;
+        players[i].info.status.health = TRUE;
 	}
 }
 
@@ -292,7 +292,7 @@ void ia_hunter_cycle()
                 if (i == j) {
                     continue;
                 }
-                if (players[j].info.sprite == SPR_PLAYER_DEAD) {
+                if (!players[j].info.status.health) {
                     continue;
                 }
                 // calc distance aproximy
@@ -322,7 +322,7 @@ void ia_process(unsigned char npc)
             break;
 
         case FSM_HUNTER:
-            if (players[j].info.sprite == SPR_PLAYER_DEAD || (roosters_total > 2 && rand8() < 10)) {
+            if (!players[j].info.status.health || (roosters_total > 2 && rand8() < 10)) {
                 npcs[npc].state = FSM_RANDOM;
                 break;
             }
@@ -476,7 +476,7 @@ void main(void)
                 /** entitys loop **/
                 for (i = 0; i < MAX_ENIMIES; i++) {
                     /** out of game **/
-                    if (players[i].info.sprite == SPR_PLAYER_DEAD) {
+                    if (!players[i].info.status.health) {
                         continue;
                     }
 
@@ -565,14 +565,14 @@ void main(void)
                                 continue;
                             }
                             /** pidgeot is fainted dude **/
-                            if (players[j].info.sprite == SPR_PLAYER_DEAD) {
+                            if (!players[j].info.status.health) {
                                 continue;
                             }
                             /** far far away **/
                             if (DISTANCE(players[i].x, players[j].x) > 8 || DISTANCE(players[i].y, players[j].y) > 8) {
                                 continue;
                             }
-                            players[j].info.sprite = SPR_PLAYER_DEAD;
+                            players[j].info.status.health = FALSE;
                         }
                     }
 
@@ -582,12 +582,12 @@ void main(void)
                         if (two_players) {
                         case PLAYER_1:
                             spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
-                            spr = oam_spr(players[i].x, players[i].y, SPR_PLAYER + players[i].info.sprite, i, spr);
+                            spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, i, spr);
                             break;
                         }
 
                         default:
-                            spr = oam_spr(players[i].x, players[i].y, SPR_PLAYER + players[i].info.sprite, 2, spr);
+                            spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, 2, spr);
                             break;
                     }
                 }
