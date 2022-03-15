@@ -63,7 +63,7 @@
 #define SPR_LOGO_JAP                    0xC0
 
 /**
- * TYPESaa
+ * TYPES
  */
 
 enum fsm_game_e {
@@ -113,6 +113,17 @@ struct framecount_s {
     unsigned char hunter_step: 4;
 };
 
+/** INTERNACIONALIZATION **/
+const char I18N_EN_CONTINUE[] = "CONTINUE";
+const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
+const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
+
+const char jp = 1;
+const char I18N_JP_CONTINUE[] = "CONTINUE";
+const char I18N_JP_1_PLAYERS[] = {' ', ' ', '1', 1, 2, 3, 4, 5, 0};
+const char I18N_JP_2_PLAYERS[] = {' ', ' ', '2', 1, 2, 3, 4, 5, 0};
+
+
 /** GLOBAL CONSTANTS **/
 static const unsigned char npc_groups[] = {
     0, 0, 0, 1, 2,
@@ -146,7 +157,6 @@ static unsigned char two_players;				/** local multiplayer mode **/
 static unsigned char seed;						/** randomness control **/
 static unsigned char roosters_count;            /** cocks counter **/
 static unsigned char roosters_total;            /** total of cocks arrive **/
-static unsigned char jp;                        /** japanese version **/
 
 /** GENERAL VARIABLES **/
 static signed char s;
@@ -397,10 +407,10 @@ void main(void)
                 oam_clear();
 				put_all(NULL);
                 put_logo();
-                put_str(NTADR_A(11,16), "1 PLAYERS");
-                put_str(NTADR_A(11,17), "2 PLAYERS");
+                put_str(NTADR_A(11,16), jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS);
+                put_str(NTADR_A(11,17), jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS);
                 if (roosters_count) {
-                    put_str(NTADR_A(11,15), "CONTINUE");
+                    put_str(NTADR_A(11,15), jp? I18N_JP_CONTINUE: I18N_EN_CONTINUE);
                 }
 				ppu_on_all();
 				gamestate = FSM_MENU;
@@ -450,7 +460,7 @@ void main(void)
                 }
 
                 /** draw option **/
-                oam_spr((10 * 8), (15 * 8) + (s << 3), '>', 0, 0);
+                oam_spr((10 * 8) + (jp << 4), (15 * 8) + (s << 3), '>', 0, 0);
                 break;
 
             case FSM_GAMEPLAY:
@@ -594,8 +604,8 @@ void main(void)
 
                 /** draw number of coocks **/
                 roosters_total = roosters_count;
-                spr = oam_spr((7 * 8), (27 * 8), '0' + (roosters_total / 10), 0, spr);
-                spr = oam_spr((8 * 8), (27 * 8), '0' + (roosters_total % 10), 0, spr);
+                spr = oam_spr((7 * 8), (27 * 8) -1, '0' + (roosters_total / 10), 0, spr);
+                spr = oam_spr((8 * 8), (27 * 8) -1, '0' + (roosters_total % 10), 0, spr);
                 oam_hide_rest(spr);
                 break;
 
