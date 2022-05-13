@@ -332,13 +332,14 @@ void ia_process(unsigned char npc)
             break;
 
         case FSM_HUNTER:
+            j = npcs[npc].target;
             if (!players[j].info.status.health || (roosters_total > 2 && rand8() < 10)) {
                 npcs[npc].state = FSM_RANDOM;
                 break;
             }
             npcs[npc].input = 0;
-            npcs[npc].input |= players[npc].x > players[npcs[npc].target].x? PAD_LEFT: PAD_RIGHT;
-            npcs[npc].input |= players[npc].y > players[npcs[npc].target].y? PAD_UP: PAD_DOWN;
+            npcs[npc].input |= players[npc].x > players[j].x? PAD_LEFT: PAD_RIGHT;
+            npcs[npc].input |= players[npc].y > players[j].y? PAD_UP: PAD_DOWN;
             npcs[npc].input |= DISTANCE2D(players[i].x, players[j].x, players[i].y, players[j].y) < 8? PAD_A: NULL;
             break;
 
