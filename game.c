@@ -77,7 +77,6 @@ enum fsm_game_e {
 enum fsm_ia_e {
     FSM_DEFAULT,
     FSM_RANDOM,
-    FSM_SLEEP,
     FSM_HUNTER_WAIT,
     FSM_HUNTER,
     FSM_SCAPE_WAIT,
@@ -266,6 +265,7 @@ void spawn_cocks()
             // random npc positions
             players[i].x = rand8();
             players[i].y = rand8();
+            npcs[i].input = FSM_DEFAULT;
         }
         while (
             // uncenter npc positions
@@ -323,12 +323,8 @@ void ia_process(unsigned char npc)
 {
     switch (npcs[npc].state) {
         case FSM_DEFAULT:
+            npcs[npc].input = NULL;
             npcs[npc].state = FSM_RANDOM;
-            break;
-
-        case FSM_SLEEP:
-            npcs[npc].state = rand8() < 10? FSM_RANDOM: FSM_SLEEP;
-            npcs[npc].input = 0;
             break;
 
         case FSM_HUNTER:
@@ -369,11 +365,19 @@ void ia_process(unsigned char npc)
             else if (j < 30) {
                 npcs[npc].state = FSM_HUNTER_WAIT;
             }
-            else if (j < 90) {
-                npcs[npc].input = FSM_SLEEP;
+            else if (j < 60) {
+                npcs[npc].input ^= (rand8() + npc + j) & (PAD_LEFT | PAD_RIGHT);
+                // fixed ambiguous input on axis x
+                if (npcs[npc].input & PAD_LEFT && npcs[npc].input & PAD_RIGHT) {
+                    npcs[npc].input ^= (PAD_LEFT | PAD_RIGHT);
+                }
             }
-            else {
-                npcs[npc].input = rand8();
+            else if (j < 90) {
+                npcs[npc].input ^= (rand8() + npc + j) & (PAD_DOWN | PAD_UP);
+                // fixed ambiguous input on axis x
+                if (npcs[npc].input & PAD_DOWN && npcs[npc].input & PAD_UP) {
+                    npcs[npc].input ^= (PAD_DOWN | PAD_UP);
+                }
             }
             break;
     }
