@@ -160,7 +160,7 @@ static unsigned char roosters_total;            /** total of cocks arrive **/
 /** GENERAL VARIABLES **/
 static signed char s;
 static unsigned int big1, big2;
-static unsigned char i,j;
+static unsigned char i,j,r;
 static unsigned char spr;
 
 /*
@@ -329,7 +329,7 @@ void ia_process(unsigned char npc)
 
         case FSM_HUNTER:
             j = npcs[npc].target;
-            if (!players[j].info.status.health || (roosters_total > 2 && rand8() < 10)) {
+            if (!players[j].info.status.health) {
                 npcs[npc].state = FSM_RANDOM;
                 break;
             }
@@ -337,6 +337,19 @@ void ia_process(unsigned char npc)
             npcs[npc].input |= players[npc].x > players[j].x? PAD_LEFT: PAD_RIGHT;
             npcs[npc].input |= players[npc].y > players[j].y? PAD_UP: PAD_DOWN;
             npcs[npc].input |= DISTANCE2D(players[i].x, players[j].x, players[i].y, players[j].y) < 8? PAD_A: NULL;
+            r = rand8();
+            if (roosters_total > 2 && r < 10){
+                npcs[npc].state = FSM_RANDOM;
+            }
+            else if (npcs[npc].state == FSM_HUNTER && npcs[j].state == FSM_HUNTER && r < 10) {
+                npcs[npc].state = FSM_RANDOM;
+            }
+            if (r < 25) {
+                npcs[npc].input ^= (PAD_LEFT | PAD_RIGHT);
+            }
+            else if (r < 50) {
+                npcs[npc].input ^= (PAD_UP | PAD_DOWN);
+            }
             break;
 
         case FSM_WINNER:
