@@ -314,6 +314,7 @@ void main(void)
 
 			case FSM_DRAW_ARENA:
 				ppu_off();
+                music_play(1);
                 oam_clear();
 				put_all(NULL);
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
