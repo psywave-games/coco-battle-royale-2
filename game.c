@@ -67,6 +67,8 @@
  */
 
 enum fsm_game_e {
+    FSM_MUSIC_MENU,
+    FSM_MUSIC_ARENA,
 	FSM_DRAW_MENU,
 	FSM_DRAW_ARENA,
 	FSM_MENU,
@@ -420,9 +422,18 @@ void main(void)
         );
 		
 		switch (gamestate) {
+            case FSM_MUSIC_MENU:
+                music_play(0);
+				gamestate = FSM_DRAW_MENU;
+                break;
+
+            case FSM_MUSIC_ARENA:
+                music_play(1);
+				gamestate = FSM_RESTART;
+                break;
+
             case FSM_DRAW_MENU:
                 ppu_off();
-                music_play(0);
                 oam_clear();
 				put_all(NULL);
                 put_logo();
@@ -437,7 +448,6 @@ void main(void)
 
 			case FSM_DRAW_ARENA:
 				ppu_off();
-                music_play(1);
                 oam_clear();
 				put_all(NULL);
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
@@ -469,12 +479,12 @@ void main(void)
 
                         case 1:
                             two_players = 0;
-                            gamestate = FSM_RESTART;
+                            gamestate = FSM_MUSIC_ARENA;
                             break;
 
                         case 2:
                             two_players = 1;
-                            gamestate = FSM_RESTART;
+                            gamestate = FSM_MUSIC_ARENA;
                             break;
                     }
                 }
