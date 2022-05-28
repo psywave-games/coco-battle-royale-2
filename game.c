@@ -50,17 +50,17 @@
 #define PRESSING(g,b)			        ((g&b)==b)
 #define CLAMP(v,min,max)                (MIN(max,MAX(min,v)))
 #define DISTANCE(a,b)                   (a>b?a-b:b-a)
+#define DISTANCE2D(a1,a2,b1,b2)         ((int)DISTANCE(a1,a2)+DISTANCE(b1,b2))
 #define vram_adr_put(x,y,s)             {vram_adr(NTADR_A(x,y));vram_put(s);}
 
 /**
  *  SPRITES
  */
-#define SPR_PLAYER_DEAD                 -0x1
-#define SPR_PLAYER				        0x01
 #define SPR_EDGE                        0x6C
 #define SPR_LOGO                        0x60
 #define SPR_BONE                        0x6D
-#define SPR_POINTER                     0x0D
+#define SPR_POINTER                     0x1C
+#define SPR_LOGO_JAP                    0xC0
 
 /**
  * TYPES
@@ -77,7 +77,6 @@ enum fsm_game_e {
 enum fsm_ia_e {
     FSM_DEFAULT,
     FSM_RANDOM,
-    FSM_SLEEP,
     FSM_HUNTER_WAIT,
     FSM_HUNTER,
     FSM_SCAPE_WAIT,
@@ -96,6 +95,7 @@ struct coco_s {
             unsigned char flipped: 1;
             unsigned char attacking: 1;
             unsigned char recovering: 1;
+            unsigned char health: 1;
         } status;
     } info;
 };
@@ -111,6 +111,17 @@ struct framecount_s {
     unsigned char hunter_last: 2;
     unsigned char hunter_step: 4;
 };
+
+/** INTERNACIONALIZATION **/
+const char I18N_EN_CONTINUE[] = "CONTINUE";
+const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
+const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
+
+const char jp = 0;
+const char I18N_JP_CONTINUE[] = {' ', ' ', ' ', ' ', ' ', 6, 7, 8, 0};
+const char I18N_JP_1_PLAYERS[] = {' ', ' ', '1', 1, 2, 3, 4, 5, 0};
+const char I18N_JP_2_PLAYERS[] = {' ', ' ', '2', 1, 2, 3, 4, 5, 0};
+
 
 /** GLOBAL CONSTANTS **/
 static const unsigned char npc_groups[] = {
@@ -128,7 +139,7 @@ static const unsigned char good_seeds[] = {
     SEED_PACK(451), SEED_PACK(507)
 };
 
-const unsigned char palSprites[]={
+const char palSprites[]={
 	0x0f,0x30,0x27,0x16,
 	0x0f,0x27,0x30,0x16,
 	0x0f,0x2D,0x27,0x16,
@@ -143,11 +154,13 @@ static unsigned char gamepad_old[MAX_PLAYERS];  /** last frame joysticks inputs 
 static enum fsm_game_e gamestate;	            /** finite state machine **/
 static unsigned char two_players;				/** local multiplayer mode **/
 static unsigned char seed;						/** randomness control **/
-static unsigned char roosters;                  /** cocks count **/
+static unsigned char roosters_count;            /** cocks counter **/
+static unsigned char roosters_total;            /** total of cocks arrive **/
 
 /** GENERAL VARIABLES **/
 static signed char s;
-static unsigned char i,j;
+static unsigned int big1, big2;
+static unsigned char i,j,r;
 static unsigned char spr;
 
 /*
@@ -191,6 +204,26 @@ void put_logo()
     const unsigned char pivot_x = 7;
     const unsigned char pivot_y = 5;
 
+    /** JAP VERSION **/
+    if (jp) {
+        /** draw text **/
+        for (i = 0; i < 4; i++) for (j = 0; j < 14; j++) {
+            vram_adr(NTADR_A(pivot_x + j + 3, pivot_y + i));
+            vram_put(SPR_LOGO_JAP + (i * 0x10) + j);
+        }
+
+        /** repeat first hideogram**/
+        for (i = 0; i < 4; i++) for (j = 0; j < 3; j++) {
+            vram_adr(NTADR_A(pivot_x + j, pivot_y + i));
+            vram_put(SPR_LOGO_JAP + (i * 0x10) + j);
+        }
+        put_str(NTADR_A(pivot_x, pivot_y + 4), "   COCO BATTLE   ");
+        put_str(NTADR_A(pivot_x, pivot_y + 5), "    ROYALE II    ");
+
+        put_ret(pivot_x -1, pivot_y - 1, pivot_x + 16, pivot_y + 5);
+        return;
+    }
+
     /** draw text **/
     for (i = 0; i < 7; i++) for (j = 0; j < 12; j++) {
         vram_adr(NTADR_A(pivot_x + j, pivot_y + i));
@@ -232,6 +265,7 @@ void spawn_cocks()
             // random npc positions
             players[i].x = rand8();
             players[i].y = rand8();
+            npcs[i].input = FSM_DEFAULT;
         }
         while (
             // uncenter npc positions
@@ -240,13 +274,14 @@ void spawn_cocks()
         );
         // look to center
         players[i].info.status.flipped = players[i].x > MID_ARENA_X? LOOK_LEFT: LOOK_RIGHT;
+        players[i].info.status.health = TRUE;
 	}
 }
 
 void ia_hunter_cycle()
 {
     /** verify cycle is completed **/
-    if (framecount.hunter_last == framecount.frames) {
+    if (framecount.hunter_last == framecount.frames++) {
         return;
     }
 
@@ -254,30 +289,118 @@ void ia_hunter_cycle()
     if (++framecount.hunter_step) {
         return;
     }
-    
+
     /** next group **/
     framecount.hunter_last += 1;
 
     /** search by hunter **/
-    for (j = framecount.hunter_last; j < MAX_ENIMIES; j += 4) {
+    for (i = framecount.hunter_last; i < MAX_ENIMIES; i += 4) {
         /** finded **/
-        //if (npcs_ia[j].state == FSM_HUNTER_WAIT) {
-            /** nest victim **/
-            //ia_find_nest(j);
-            //break;
-        //}
+        if (npcs[i].state == FSM_HUNTER_WAIT) {
+            big1 = 0xFFFF;
+            for (j = 0; j < MAX_ENIMIES; j++) {
+                if (i == j) {
+                    continue;
+                }
+                if (!players[j].info.status.health) {
+                    continue;
+                }
+                // calc distance aproximy
+                big2 = DISTANCE2D(players[i].x, players[j].x, players[i].y, players[j].y);
+                if (big2 > big1) {
+                    continue;
+                }
+                npcs[i].state = FSM_HUNTER;
+                npcs[i].target = j;
+                big1 = big2;
+            }
+            break;
+        }
     }    
 }
 
 void ia_process(unsigned char npc)
 {
-    npcs[npc].input = rand8();
+    switch (npcs[npc].state) {
+        case FSM_DEFAULT:
+            npcs[npc].input = NULL;
+            npcs[npc].state = FSM_RANDOM;
+            break;
+
+        case FSM_HUNTER:
+            j = npcs[npc].target;
+            if (!players[j].info.status.health) {
+                npcs[npc].state = FSM_RANDOM;
+                break;
+            }
+            npcs[npc].input = 0;
+            npcs[npc].input |= players[npc].x > players[j].x? PAD_LEFT: PAD_RIGHT;
+            npcs[npc].input |= players[npc].y > players[j].y? PAD_UP: PAD_DOWN;
+            npcs[npc].input |= DISTANCE2D(players[i].x, players[j].x, players[i].y, players[j].y) < 8? PAD_A: NULL;
+            r = rand8();
+            if (roosters_total > 2 && r < 10){
+                npcs[npc].state = FSM_RANDOM;
+            }
+            else if (npcs[npc].state == FSM_HUNTER && npcs[j].state == FSM_HUNTER && r < 10) {
+                npcs[npc].state = FSM_RANDOM;
+            }
+            if (r < 25) {
+                npcs[npc].input ^= (PAD_LEFT | PAD_RIGHT);
+            }
+            else if (r < 50) {
+                npcs[npc].input ^= (PAD_UP | PAD_DOWN);
+            }
+            break;
+
+        case FSM_WINNER:
+            if (players[npc].y < MID_ARENA_Y - 8) {
+                npcs[npc].input = PAD_DOWN;
+            }
+            else if (players[npc].y > MID_ARENA_Y + 8) {
+                npcs[npc].input = PAD_UP;
+            }
+            else if (players[npc].x > MID_ARENA_X + 32) {
+                npcs[npc].input = PAD_LEFT;
+            }
+            else if (players[npc].x < MID_ARENA_X - 32) {
+                npcs[npc].input = PAD_RIGHT;
+            }
+            else if (rand8() < 64) {
+                npcs[npc].input = rand8() % 2? PAD_LEFT: PAD_RIGHT;
+            }
+            break;
+    
+        default:
+            j = rand8();
+            if (roosters_total == 1) {
+                npcs[npc].state = FSM_WINNER;
+            }
+            else if (j < 30) {
+                npcs[npc].state = FSM_HUNTER_WAIT;
+            }
+            else if (j < 60) {
+                npcs[npc].input ^= (rand8() + npc + j) & (PAD_LEFT | PAD_RIGHT);
+                // fixed ambiguous input on axis x
+                if (npcs[npc].input & PAD_LEFT && npcs[npc].input & PAD_RIGHT) {
+                    npcs[npc].input ^= (PAD_LEFT | PAD_RIGHT);
+                }
+            }
+            else if (j < 90) {
+                npcs[npc].input ^= (rand8() + npc + j) & (PAD_DOWN | PAD_UP);
+                // fixed ambiguous input on axis x
+                if (npcs[npc].input & PAD_DOWN && npcs[npc].input & PAD_UP) {
+                    npcs[npc].input ^= (PAD_DOWN | PAD_UP);
+                }
+            }
+            break;
+    }
 }
 
 void main(void)
 {
 	pal_spr(palSprites);
 	pal_col(1,0x30);
+	pal_col(2,0x27);
 
 	/** game loop **/
 	for (;;)
@@ -302,10 +425,10 @@ void main(void)
                 oam_clear();
 				put_all(NULL);
                 put_logo();
-                put_str(NTADR_A(11,16), "1 PLAYERS");
-                put_str(NTADR_A(11,17), "2 PLAYERS");
-                if (roosters) {
-                    put_str(NTADR_A(11,15), "CONTINUE");
+                put_str(NTADR_A(11,16), jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS);
+                put_str(NTADR_A(11,17), jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS);
+                if (roosters_count) {
+                    put_str(NTADR_A(11,15), jp? I18N_JP_CONTINUE: I18N_EN_CONTINUE);
                 }
 				ppu_on_all();
 				gamestate = FSM_MENU;
@@ -333,7 +456,7 @@ void main(void)
                 }
 
                 /** Limit menu options **/
-                s = CLAMP(s, roosters == 0, 2);
+                s = CLAMP(s, roosters_count == 0, 2);
 
                 /** begin start the game **/
                 if (gamepad[PLAYER_1] & (PAD_A | PAD_START)) {
@@ -355,7 +478,7 @@ void main(void)
                 }
 
                 /** draw option **/
-                oam_spr((10 * 8), (15 * 8) + (s << 3), '>', 0, 0);
+                oam_spr((10 * 8) + (jp << 4), (15 * 8) + (s << 3), '>', 0, 0);
                 break;
 
             case FSM_GAMEPLAY:
@@ -375,19 +498,18 @@ void main(void)
                 }
 
                 /** preapare **/
-                roosters = 0;
-                framecount.frames++;
+                roosters_count = 0;
                 ia_hunter_cycle();
 
                 /** entitys loop **/
                 for (i = 0; i < MAX_ENIMIES; i++) {
                     /** out of game **/
-                    if (players[i].info.sprite == SPR_PLAYER_DEAD) {
+                    if (!players[i].info.status.health) {
                         continue;
                     }
 
                     /** number of coocks alive **/
-                    roosters += 1;
+                    roosters_count += 1;
                     
                     /** player input **/
                     if (i <= two_players) {
@@ -471,14 +593,14 @@ void main(void)
                                 continue;
                             }
                             /** pidgeot is fainted dude **/
-                            if (players[j].info.sprite == SPR_PLAYER_DEAD) {
+                            if (!players[j].info.status.health) {
                                 continue;
                             }
                             /** far far away **/
                             if (DISTANCE(players[i].x, players[j].x) > 8 || DISTANCE(players[i].y, players[j].y) > 8) {
                                 continue;
                             }
-                            players[j].info.sprite = SPR_PLAYER_DEAD;
+                            players[j].info.status.health = FALSE;
                         }
                     }
 
@@ -488,19 +610,20 @@ void main(void)
                         if (two_players) {
                         case PLAYER_1:
                             spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
-                            spr = oam_spr(players[i].x, players[i].y, SPR_PLAYER + players[i].info.sprite, i, spr);
+                            spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, i, spr);
                             break;
                         }
 
                         default:
-                            spr = oam_spr(players[i].x, players[i].y, SPR_PLAYER + players[i].info.sprite, 2, spr);
+                            spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, 2, spr);
                             break;
                     }
                 }
 
                 /** draw number of coocks **/
-                spr = oam_spr((7 * 8), (27 * 8), '0' + (roosters / 10), 0, spr);
-                spr = oam_spr((8 * 8), (27 * 8), '0' + (roosters % 10), 0, spr);
+                roosters_total = roosters_count;
+                spr = oam_spr((7 * 8), (27 * 8) -1, '0' + (roosters_total / 10), 0, spr);
+                spr = oam_spr((8 * 8), (27 * 8) -1, '0' + (roosters_total % 10), 0, spr);
                 oam_hide_rest(spr);
                 break;
 
@@ -509,6 +632,7 @@ void main(void)
                 for (i = 0; i < MAX_ENIMIES; players[i].info.sprite = 0, i++);
                 seed = (seed + 1) % sizeof(good_seeds);
                 gamestate = FSM_DRAW_ARENA;
+                roosters_total = 0;
                 spawn_cocks();
                 break;
 		}
