@@ -299,6 +299,7 @@ void main(void)
 		switch (gamestate) {
             case FSM_DRAW_MENU:
                 ppu_off();
+                music_play(0);
                 oam_clear();
 				put_all(NULL);
                 put_logo();
