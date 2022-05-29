@@ -8,8 +8,7 @@ LD := $(CC65_DIR)/bin/ld65
 
 TARGET_PLATFORM := nes
 
-TARGETS := game.nes
-
+TARGETS := kokobatoru.nes cocobattleroyale.nes
 EMULATOR ?= higan
 
 EXAMPLES := $(TARGETS:..nes=)
@@ -40,7 +39,7 @@ clean:
 	@rm -fv $(TARGETS)
 	@rm -fv $(OBJECTS)
 	@rm -fv $(ASSEMBLY_SOURCES)
-	@rm -fv crt0.o
+	@rm -fv asm/crt0.o
 
 %.s: %.c
 	$(CC) -Oi $< --target $(TARGET_PLATFORM) -I$(CC65_DIR)/include/ --add-source
@@ -48,6 +47,6 @@ clean:
 %.o: %.s
 	$(CA) $<
 
-%.nes: %.o crt0.o
+%.nes: %.o asm/crt0.o
 	$(LD) -C nrom_128_horz.cfg -o $@ $^ $(TARGET_PLATFORM).lib
 

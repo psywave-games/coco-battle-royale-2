@@ -263,4 +263,4 @@ sounds_data:
 
 .segment "CHARS"
 
-	.incbin "tileset.chr"
+	.incbin "../res/tileset.chr"

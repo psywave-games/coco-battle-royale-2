@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "neslib.h"
 
 /**
  * CONSTANTS
@@ -117,7 +116,7 @@ const char I18N_EN_CONTINUE[] = "CONTINUE";
 const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
 const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
 
-const char jp = 0;
+const char jp = FAMICON_VERSION;
 const char I18N_JP_CONTINUE[] = {' ', ' ', ' ', ' ', ' ', 6, 7, 8, 0};
 const char I18N_JP_1_PLAYERS[] = {' ', ' ', '1', 1, 2, 3, 4, 5, 0};
 const char I18N_JP_2_PLAYERS[] = {' ', ' ', '2', 1, 2, 3, 4, 5, 0};

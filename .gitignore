@@ -1,4 +1,7 @@
 cc65
 *.o
 *.nes
-game.s
+*.nes.zip
+./*.s
+./bin/*
+!bin/.gitkeep
