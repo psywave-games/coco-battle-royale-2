@@ -279,6 +279,8 @@ void spawn_cocks()
             // random npc positions
             players[i].x = rand8();
             players[i].y = rand8();
+            // reset npc behavior
+            npcs[i].input = 0;
             npcs[i].state = FSM_DEFAULT;
         }
         while (
