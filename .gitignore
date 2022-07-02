@@ -1,7 +1,8 @@
 cc65
 *.o
+*.s
 *.nes
 *.nes.zip
-./*.s
 ./bin/*
+!asm/*.s
 !bin/.gitkeep

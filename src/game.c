@@ -60,6 +60,14 @@
 #define SPR_BONE                        0x6D
 #define SPR_POINTER                     0x1C
 #define SPR_LOGO_JAP                    0xC0
+#define SPR_JP_HITO                     0xAE
+#define SPR_JP_O                        0xBE
+#define SPR_JP_N                        0xCE
+#define SPR_JP_DO                       0xDE
+#define SPR_JP_RI                       0xEE
+#define SPR_JP_TSU                      0xFE
+#define SPR_JP_DZU                      0xAF
+#define SPR_JP_KU                       0xBF
 
 /**
  * TYPES
@@ -94,7 +102,8 @@ struct coco_s {
             unsigned char flipped: 1;
             unsigned char attacking: 1;
             unsigned char recovering: 1;
-            unsigned char health: 1;
+            unsigned char coloreven: 1;
+            unsigned char death: 1;
         } status;
     } info;
 };
@@ -117,11 +126,16 @@ const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
 const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
 
 const char jp = FAMICON_VERSION;
-const char I18N_JP_CONTINUE[] = {' ', ' ', ' ', ' ', ' ', 6, 7, 8, 0};
-const char I18N_JP_1_PLAYERS[] = {' ', ' ', '1', 1, 2, 3, 4, 5, 0};
-const char I18N_JP_2_PLAYERS[] = {' ', ' ', '2', 1, 2, 3, 4, 5, 0};
-
-
+const char I18N_JP_CONTINUE[] = {
+    ' ', ' ', ' ', ' ', ' ', SPR_JP_TSU, SPR_JP_DZU, SPR_JP_KU, 0
+};
+const char I18N_JP_1_PLAYERS[] = {
+    ' ', ' ', '1', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+};
+const char I18N_JP_2_PLAYERS[] = {
+    ' ', ' ', '2', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+};
+ 
 /** GLOBAL CONSTANTS **/
 static const unsigned char npc_groups[] = {
     0, 0, 0, 1, 2,
@@ -138,10 +152,11 @@ static const unsigned char good_seeds[] = {
     SEED_PACK(451), SEED_PACK(507)
 };
 
-const char palSprites[]={
-	0x0f,0x30,0x27,0x16,
+const char palSprites[] = {
 	0x0f,0x27,0x30,0x16,
-	0x0f,0x2D,0x27,0x16,
+	0x0f,0x2C,0x25,0x30,
+	0x0f,0x13,0x15,0x25,
+	0x0f,0x26,0x2A,0x36,
 };
 
 /** GLOBAL VARIABLES **/
@@ -264,7 +279,7 @@ void spawn_cocks()
             // random npc positions
             players[i].x = rand8();
             players[i].y = rand8();
-            npcs[i].input = FSM_DEFAULT;
+            npcs[i].state = FSM_DEFAULT;
         }
         while (
             // uncenter npc positions
@@ -273,7 +288,8 @@ void spawn_cocks()
         );
         // look to center
         players[i].info.status.flipped = players[i].x > MID_ARENA_X? LOOK_LEFT: LOOK_RIGHT;
-        players[i].info.status.health = TRUE;
+        players[i].info.status.coloreven = (i >> 3) & 1;
+        players[i].info.status.death = FALSE;
 	}
 }
 
@@ -301,7 +317,7 @@ void ia_hunter_cycle()
                 if (i == j) {
                     continue;
                 }
-                if (!players[j].info.status.health) {
+                if (players[j].info.status.death) {
                     continue;
                 }
                 // calc distance aproximy
@@ -328,7 +344,7 @@ void ia_process(unsigned char npc)
 
         case FSM_HUNTER:
             j = npcs[npc].target;
-            if (!players[j].info.status.health) {
+            if (players[j].info.status.death) {
                 npcs[npc].state = FSM_RANDOM;
                 break;
             }
@@ -422,7 +438,7 @@ void main(void)
             case FSM_DRAW_MENU:
                 ppu_off();
                 oam_clear();
-				put_all(NULL);
+				put_all(' ');
                 put_logo();
                 put_str(NTADR_A(11,16), jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS);
                 put_str(NTADR_A(11,17), jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS);
@@ -436,7 +452,7 @@ void main(void)
 			case FSM_DRAW_ARENA:
 				ppu_off();
                 oam_clear();
-				put_all(NULL);
+				put_all(' ');
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
 				put_str(NTADR_A(1,27),"COCKS:              PLAYERS:");
 				put_str(NTADR_A(1,28),"PRESS (START) FOR NEW BATTLE!");
@@ -503,7 +519,7 @@ void main(void)
                 /** entitys loop **/
                 for (i = 0; i < MAX_ENIMIES; i++) {
                     /** out of game **/
-                    if (!players[i].info.status.health) {
+                    if (players[i].info.status.death) {
                         continue;
                     }
 
@@ -592,31 +608,24 @@ void main(void)
                                 continue;
                             }
                             /** pidgeot is fainted dude **/
-                            if (!players[j].info.status.health) {
+                            if (players[j].info.status.death) {
                                 continue;
                             }
                             /** far far away **/
                             if (DISTANCE(players[i].x, players[j].x) > 8 || DISTANCE(players[i].y, players[j].y) > 8) {
                                 continue;
                             }
-                            players[j].info.status.health = FALSE;
+                            players[j].info.status.death = TRUE;
                         }
                     }
 
-                    /** draw cocks **/
-                    switch (i) {
-                        case PLAYER_2:
-                        if (two_players) {
-                        case PLAYER_1:
-                            spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
-                            spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, i, spr);
-                            break;
-                        }
-
-                        default:
-                            spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, 2, spr);
-                            break;
+                    /** draw pointer **/
+                    if (i <= two_players) {
+                        spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
                     }
+
+                    /** draw cock **/   
+                    spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, i % 4, spr);
                 }
 
                 /** draw number of coocks **/
