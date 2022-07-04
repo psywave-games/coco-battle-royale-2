@@ -22,7 +22,7 @@
  */
 
 #define MAX_ENIMIES                     (20)
-#define MAX_PLAYERS                     (2)
+#define MAX_PLAYERS                     (4)
 #define SPEED                           (1)
 #define MIN_ARENA_X                     (6)
 #define MAX_ARENA_X                     (242)
@@ -124,6 +124,8 @@ struct framecount_s {
 const char I18N_EN_CONTINUE[] = "CONTINUE";
 const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
 const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
+const char I18N_EN_3_PLAYERS[] = "3 PLAYERS";
+const char I18N_EN_4_PLAYERS[] = "4 PLAYERS";
 
 const char jp = FAMICON_VERSION;
 const char I18N_JP_CONTINUE[] = {
@@ -134,6 +136,12 @@ const char I18N_JP_1_PLAYERS[] = {
 };
 const char I18N_JP_2_PLAYERS[] = {
     ' ', ' ', '2', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+};
+const char I18N_JP_3_PLAYERS[] = {
+    ' ', ' ', '3', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+};
+const char I18N_JP_4_PLAYERS[] = {
+    ' ', ' ', '4', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
 };
  
 /** GLOBAL CONSTANTS **/
@@ -163,13 +171,15 @@ const char palSprites[] = {
 static struct npc_ia_s npcs[MAX_ENIMIES];       /** IA controll **/
 static struct framecount_s framecount;          /** IA manager groups **/
 static struct coco_s players[MAX_ENIMIES];		/** all cocks entitys **/
-static unsigned char gamepad[MAX_PLAYERS];		/** joystick inputs **/
-static unsigned char gamepad_old[MAX_PLAYERS];  /** last frame joysticks inputs **/
 static enum fsm_game_e gamestate;	            /** finite state machine **/
-static unsigned char two_players;				/** local multiplayer mode **/
 static unsigned char seed;						/** randomness control **/
 static unsigned char roosters_count;            /** cocks counter **/
 static unsigned char roosters_total;            /** total of cocks arrive **/
+
+/** micromages 4 players **/
+static unsigned char joysticks = 1;				/** local multiplayer mode **/
+static unsigned char* gamepad = &joy1;          /** joystick inputs **/
+static unsigned char gamepad_old[MAX_PLAYERS];  /** last frame joysticks inputs **/
 
 /** GENERAL VARIABLES **/
 static signed char s;
@@ -270,10 +280,10 @@ void spawn_cocks()
 
 	for (i = 0; i < MAX_ENIMIES; i++)
 	{ 
-        if (i <= two_players) {
+        if (i < joysticks) {
             // random player positions
-            players[i].x = MID_ARENA_X + (two_players? (i? RANGE_ARENA/2: RANGE_ARENA/(-2)): 0);
-            players[i].y = MID_ARENA_Y;
+            players[i].x = MID_ARENA_X + (i&1? RANGE_ARENA/2: RANGE_ARENA/(-2));
+            players[i].y = MID_ARENA_Y + (i&2? RANGE_ARENA/2: RANGE_ARENA/(-2));
         }
         else do {
             // random npc positions
@@ -429,12 +439,10 @@ void main(void)
 		ppu_wait_nmi();
 
 		/** joystick inputs **/
-        for (
-            i = 0; i <= two_players;
-            gamepad_old[i] = gamepad[i],
-            gamepad[i] = pad_poll(i),
-            i++
-        );
+        for (i = 0; i < joysticks; i++) {
+            gamepad_old[i] = gamepad[i];
+        }
+        updateInput();
 		
 		switch (gamestate) {
             case FSM_DRAW_MENU:
@@ -444,6 +452,8 @@ void main(void)
                 put_logo();
                 put_str(NTADR_A(11,16), jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS);
                 put_str(NTADR_A(11,17), jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS);
+                put_str(NTADR_A(11,18), jp? I18N_JP_3_PLAYERS: I18N_EN_3_PLAYERS);
+                put_str(NTADR_A(11,19), jp? I18N_JP_4_PLAYERS: I18N_EN_4_PLAYERS);
                 if (roosters_count) {
                     put_str(NTADR_A(11,15), jp? I18N_JP_CONTINUE: I18N_EN_CONTINUE);
                 }
@@ -458,7 +468,7 @@ void main(void)
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
 				put_str(NTADR_A(1,27),"COCKS:              PLAYERS:");
 				put_str(NTADR_A(1,28),"PRESS (START) FOR NEW BATTLE!");
-                vram_adr_put(29, 27, '1' + two_players);
+                vram_adr_put(29, 27, '0' + joysticks);
 				gamestate = FSM_GAMEPLAY;
 				ppu_on_all();
 				break;
@@ -468,28 +478,36 @@ void main(void)
                 seed = (seed + 1) % sizeof(good_seeds);
 
                 /** switch between resume, singleplayers and multiplayer **/
-                if (gamepad_old[PLAYER_1] == 0) {
-                    s = s + (PRESSING(gamepad[PLAYER_1], PAD_DOWN) - PRESSING(gamepad[PLAYER_1], PAD_UP));
+                if (gamepad_old[PLAYER_1] == 0 && gamepad[PLAYER_1] & PAD_UP) {
+                    s -= 1;
+                }
+                else if (gamepad_old[PLAYER_1] == 0 && gamepad[PLAYER_1] & PAD_DOWN) {
+                    s += 1;
                 }
 
                 /** Limit menu options **/
-                s = CLAMP(s, roosters_count == 0, 2);
+                s = CLAMP(s, roosters_count == 0, 4);
 
                 /** begin start the game **/
-                if (gamepad[PLAYER_1] & (PAD_A | PAD_START)) {
+                i = gamepad[PLAYER_1] & PAD_START; /** start button or insert coin to use all options **/
+                i|= (gamepad_old[PLAYER_1] == 0) && (gamepad[PLAYER_1] & PAD_SELECT) && (s == 0); /* use only resume */
+
+                if (i) {
 				    switch (s) {
                         case 0:
                             gamestate = FSM_DRAW_ARENA;
                             break;
 
                         case 1:
-                            two_players = 0;
-                            gamestate = FSM_RESTART;
-                            break;
-
                         case 2:
-                            two_players = 1;
+                        case 3:
+                        case 4:
+                            joysticks = s;
                             gamestate = FSM_RESTART;
+                            /** when non-zero is inactive */
+                            for(i = 0; i < MAX_PLAYERS; i++) {
+                                playerActive[i] = i >= s;
+                            }
                             break;
                     }
                 }
@@ -529,7 +547,7 @@ void main(void)
                     roosters_count += 1;
                     
                     /** player input **/
-                    if (i <= two_players) {
+                    if (i < joysticks) {
                         if(gamepad[i] & PAD_LEFT) {
                             players[i].x -= 1 << SPEED;
                             s = -1;
@@ -622,7 +640,7 @@ void main(void)
                     }
 
                     /** draw pointer **/
-                    if (i <= two_players) {
+                    if (i < joysticks) {
                         spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
                     }
 

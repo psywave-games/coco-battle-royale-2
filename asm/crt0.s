@@ -95,7 +95,7 @@ RLE_HIGH			=TEMP+1
 RLE_TAG				=TEMP+2
 RLE_BYTE			=TEMP+3
 
-
+.include "micromages.s"
 
 .segment "HEADER"
 
@@ -237,6 +237,7 @@ detectNTSC:
 	jmp _main			;no parameters
 
 	.include "neslib.s"
+	.include "micromages2.s"
 
 .segment "RODATA"
 
