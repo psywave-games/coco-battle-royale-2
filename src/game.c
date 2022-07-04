@@ -475,7 +475,8 @@ void main(void)
 
             case FSM_MENU:
                 /** select best seed by frame **/
-                seed = (seed + 1) % sizeof(good_seeds);
+                /** !jp randomization adjustment to standardize US/JAP**/
+                seed = (seed + 1 + !jp) % sizeof(good_seeds);
 
                 /** switch between resume, singleplayers and multiplayer **/
                 if (gamepad_old[PLAYER_1] == 0 && gamepad[PLAYER_1] & PAD_UP) {
