@@ -1,4 +1,4 @@
-# `Coco Battle Royale ココバトル (kokobatoru) II`
+# `Coco Battle Royale II`<br/>`ココバトル (kokobatoru) 2`
 
 > homebrew game for nintendo years 80 console, distributed as free software.
 
