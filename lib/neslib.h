@@ -304,6 +304,10 @@ void __fastcall__ delay(unsigned char frames);
 #define ATADR_C(x,y)    (ATPALLETE_C|(((((y)+1)/4)<<3)|(((x)+1)/4)))
 #define ATADR_D(x,y)    (ATPALLETE_D|(((((y)+1)/4)<<3)|(((x)+1)/4)))
 
+//macro to calculate pallete tile 
+
+#define BR_BL_TR_TL(x,y,z,a) (((x)<<6)|((y)<< 4)|((z)<<2)|((a)<<0))
+
 //macro to get MSB and LSB
 
 #define MSB(x)			(((x)>>8))
