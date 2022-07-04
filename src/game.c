@@ -300,7 +300,7 @@ void spawn_cocks()
         );
         // look to center
         players[i].info.status.flipped = players[i].x > MID_ARENA_X? LOOK_LEFT: LOOK_RIGHT;
-        players[i].info.status.coloreven = (i >> 3) & 1;
+        players[i].info.status.coloreven = i & 1;
         players[i].info.status.death = FALSE;
 	}
 }
@@ -646,7 +646,7 @@ void main(void)
                     }
 
                     /** draw cock **/   
-                    spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, i % 4, spr);
+                    spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, (i >> 1), spr);
                 }
 
                 /** draw number of coocks **/
