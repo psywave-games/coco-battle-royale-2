@@ -160,8 +160,8 @@ static const unsigned char good_seeds[] = {
     SEED_PACK(451), SEED_PACK(507)
 };
 
-const char palSprites[] = {
-	0x0f,0x27,0x30,0x16,
+const char palette[] = {
+	0x0f,0x30,0x27,0x16,
 	0x0f,0x2C,0x25,0x30,
 	0x0f,0x13,0x15,0x25,
 	0x0f,0x26,0x2A,0x36,
@@ -300,7 +300,7 @@ void spawn_cocks()
         );
         // look to center
         players[i].info.status.flipped = players[i].x > MID_ARENA_X? LOOK_LEFT: LOOK_RIGHT;
-        players[i].info.status.coloreven = i & 1;
+        players[i].info.status.coloreven = !(i & 1);
         players[i].info.status.death = FALSE;
 	}
 }
@@ -425,9 +425,8 @@ void ia_process(unsigned char npc)
 
 void main(void)
 {
-	pal_spr(palSprites);
-	pal_col(1,0x30);
-	pal_col(2,0x27);
+	pal_spr(palette);
+    pal_bg(palette);
 
 	/** game loop **/
 	for (;;)

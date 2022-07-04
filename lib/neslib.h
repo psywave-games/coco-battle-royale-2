@@ -277,6 +277,11 @@ void __fastcall__ delay(unsigned char frames);
 #define NAMETABLE_C		0x2800
 #define NAMETABLE_D		0x2c00
 
+#define ATPALLETE_A     0x23C0
+#define ATPALLETE_B     0x27C0
+#define ATPALLETE_C     0x2BC0
+#define ATPALLETE_D     0x2FC0
+
 #define NULL			0
 #define TRUE			1
 #define FALSE			0
@@ -291,6 +296,13 @@ void __fastcall__ delay(unsigned char frames);
 #define NTADR_B(x,y) 	(NAMETABLE_B|(((y)<<5)|(x)))
 #define NTADR_C(x,y) 	(NAMETABLE_C|(((y)<<5)|(x)))
 #define NTADR_D(x,y) 	(NAMETABLE_D|(((y)<<5)|(x)))
+
+//macro tro calculate attributetable addres from X,Y in compile time
+
+#define ATADR_A(x,y)    (ATPALLETE_A|(((((y)+1)/4)<<3)|(((x)+1)/4)))
+#define ATADR_B(x,y)    (ATPALLETE_B|(((((y)+1)/4)<<3)|(((x)+1)/4)))
+#define ATADR_C(x,y)    (ATPALLETE_C|(((((y)+1)/4)<<3)|(((x)+1)/4)))
+#define ATADR_D(x,y)    (ATPALLETE_D|(((((y)+1)/4)<<3)|(((x)+1)/4)))
 
 //macro to get MSB and LSB
 
