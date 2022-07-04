@@ -126,6 +126,14 @@ const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
 const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
 const char I18N_EN_3_PLAYERS[] = "3 PLAYERS";
 const char I18N_EN_4_PLAYERS[] = "4 PLAYERS";
+const char I18N_EN_LOGO[] = {
+    0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x20, 0x20, 0x20, 0x6D, 0x6E, 0x6F, 0x6D, 0x6E, 0x6F,
+    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x20, 0x20, 0x20, 0x7D, 0x7E, 0x7F, 0x7D, 0x7E, 0x7F,
+    0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x20, 0x8D, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
+    0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x20, 0x8D, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
+    0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0x20, 0x8D, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
+    0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0x20, 0x20, 0x20, 0x9D, 0x9E, 0x9F, 0x9D, 0x9E, 0x9F
+};
 
 const char jp = FAMICON_VERSION;
 const char I18N_JP_CONTINUE[] = {
@@ -142,6 +150,15 @@ const char I18N_JP_3_PLAYERS[] = {
 };
 const char I18N_JP_4_PLAYERS[] = {
     ' ', ' ', '4', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+};
+
+const char I18N_JP_LOGO[] = {
+    0xC0, 0xC1, 0xC2, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0x20,
+    0xD0, 0xD1, 0xD2, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0x20,
+    0xE0, 0xE1, 0xE2, 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0x20,
+    0xF0, 0xF1, 0xF2, 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD,
+    0x20, 0x20, 0x20, 'C', 'O', 'C', 'O', ' ', 'B', 'A', 'T', 'T', 'L', 'E', 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 'R', 'O', 'Y', 'A', 'L', 'E', ' ', 'I', 'I', 0x20, 0x20, 0x20, 0x20, 
 };
  
 /** GLOBAL CONSTANTS **/
@@ -224,54 +241,12 @@ void put_ret(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char
 
 void put_logo()
 {
-    /** adjust position on screen **/
-    const unsigned char pivot_x = 7;
-    const unsigned char pivot_y = 5;
-
-    /** JAP VERSION **/
-    if (jp) {
-        /** draw text **/
-        for (i = 0; i < 4; i++) for (j = 0; j < 14; j++) {
-            vram_adr(NTADR_A(pivot_x + j + 3, pivot_y + i));
-            vram_put(SPR_LOGO_JAP + (i * 0x10) + j);
-        }
-
-        /** repeat first hideogram**/
-        for (i = 0; i < 4; i++) for (j = 0; j < 3; j++) {
-            vram_adr(NTADR_A(pivot_x + j, pivot_y + i));
-            vram_put(SPR_LOGO_JAP + (i * 0x10) + j);
-        }
-        put_str(NTADR_A(pivot_x, pivot_y + 4), "   COCO BATTLE   ");
-        put_str(NTADR_A(pivot_x, pivot_y + 5), "    ROYALE II    ");
-
-        put_ret(pivot_x -1, pivot_y - 1, pivot_x + 16, pivot_y + 5);
-        return;
+    for (i = 0; i < 6; i++){
+        vram_adr(NTADR_A(7, 5 + i));
+        vram_write((jp? I18N_JP_LOGO: I18N_EN_LOGO) + (i*17), 17);
     }
 
-    /** draw text **/
-    for (i = 0; i < 7; i++) for (j = 0; j < 12; j++) {
-        vram_adr(NTADR_A(pivot_x + j, pivot_y + i));
-        vram_put(SPR_LOGO + (i * 0x10) + j);
-    }
-
-    /** draw bones **/
-    for (i = 0; i < 2; i++) {
-        vram_adr_put(pivot_x + 11 + (i*3), pivot_y, SPR_BONE);
-        vram_adr_put(pivot_x + 12 + (i*3), pivot_y, SPR_BONE + 1);
-        vram_adr_put(pivot_x + 13 + (i*3), pivot_y, SPR_BONE + 2);
-        vram_adr_put(pivot_x + 11 + (i*3), pivot_y + 1, SPR_BONE + 0x10);
-        vram_adr_put(pivot_x + 12 + (i*3), pivot_y + 1, SPR_BONE + 0x11);
-        vram_adr_put(pivot_x + 13 + (i*3), pivot_y + 1, SPR_BONE + 0x12);
-        vram_adr_put(pivot_x + 12 + (i*3), pivot_y + 5, SPR_BONE + 0x31);
-        vram_adr_put(pivot_x + 13 + (i*3), pivot_y + 5, SPR_BONE + 0x32);
-        for (j = 2; j < 5; j++) {
-            vram_adr_put(pivot_x + 12 + (i*3), pivot_y + j, SPR_BONE + 0x21);
-            vram_adr_put(pivot_x + 13 + (i*3), pivot_y + j, SPR_BONE + 0x22);
-        }
-    }
-
-    /** draw border **/
-    put_ret(pivot_x -1, pivot_y - 1, pivot_x + 16, pivot_y + 5);
+    put_ret(6, 4, 23, 10);
 }
 
 void spawn_cocks()
