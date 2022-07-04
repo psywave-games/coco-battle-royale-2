@@ -18,4 +18,4 @@ $ make
 
 | move | attack | main player restart or insert coin | main player pause |
 | :--: | :----: | :--------------------------------: | :---------------: |
-| <kbd>&uarr;</kbd> <kbd>&larr;</kbd> <kbd>&darr;</kbd> <kbd>&rarr;</kbd>| <kbd>A</kbd> | <kbd>start</kbd> | <kbd>select</kbd> |
+| <kbd>&uarr;</kbd> <kbd>&larr;</kbd> <kbd>&darr;</kbd> <kbd>&rarr;</kbd>| <kbd>A</kbd> <kbd>B</kbd> | <kbd>start</kbd> | <kbd>select</kbd> |

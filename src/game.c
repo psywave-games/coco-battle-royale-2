@@ -565,7 +565,7 @@ void main(void)
                         else if(gamepad[i] & PAD_DOWN) {
                             players[i].y += 1 << SPEED;
                         }
-                        if ((gamepad[i] & PAD_A) && !(gamepad_old[i] & PAD_A) && players[i].framedata == 0) {
+                        if ((gamepad[i] & (PAD_B | PAD_A)) && !(gamepad_old[i] & (PAD_B | PAD_A)) && players[i].framedata == 0) {
                             players[i].framedata = FRAME_PREPARE;
                             players[i].info.status.attacking = 1;
                         }
