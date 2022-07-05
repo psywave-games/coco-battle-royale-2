@@ -207,8 +207,8 @@ static unsigned char roosters_total;            /** total of cocks arrive **/
 
 /** micromages 4 players **/
 static unsigned char joysticks = 1;				/** local multiplayer mode **/
-static unsigned char* gamepad = &joy1;          /** joystick inputs **/
 static unsigned char gamepad_old[MAX_PLAYERS];  /** last frame joysticks inputs **/
+static const unsigned char* const gamepad = &joy1;   /** joystick inputs **/
 
 /** GENERAL VARIABLES **/
 static signed char s;
@@ -234,11 +234,23 @@ void put_str(unsigned int adr,const char *str)
 void put_ret(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char y2)
 {
     /** adjust size **/
-    x2 += 1; y2 += 1;
+    x2 += 1; 
+    y2 += 1;
+    j = x2 - x1;
 
-    /** draw border lines **/
-    for (i = x1; i < x2; vram_adr(NTADR_A(i,y1)), vram_put(SPR_EDGE + 0x40), vram_adr(NTADR_A(i,y2)), vram_put(SPR_EDGE + 0x40), i++);
-    for (i = y1; i < y2; vram_adr(NTADR_A(x1,i)), vram_put(SPR_EDGE + 0x50), vram_adr(NTADR_A(x2,i)), vram_put(SPR_EDGE + 0x50), i++);
+    /** draw horizontal lines **/
+    vram_adr(NTADR_A(x1,y1));
+    vram_fill(SPR_EDGE + 0x40, j);
+    vram_adr(NTADR_A(x1,y2));
+    vram_fill(SPR_EDGE + 0x40, j);
+   
+    /** draw vertical lines **/
+    for (i = y1; i < y2; i++) {
+        vram_adr(NTADR_A(x1,i));
+        vram_put(SPR_EDGE + 0x50);
+        vram_adr(NTADR_A(x2,i));
+        vram_put(SPR_EDGE + 0x50);
+    }
     
     /** draw border edges **/
     vram_adr(NTADR_A(x1, y1));
