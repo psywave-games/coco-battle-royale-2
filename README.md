@@ -4,6 +4,7 @@
 [![license](https://img.shields.io/github/license/psywave-games/coco-battle-royale-2)](https://github.com/psywave-games/coco-battle-royale-2/blob/master/LICENSE) 
 [![status](https://img.shields.io/github/checks-status/psywave-games/coco-battle-royale-2/master)](https://github.com/psywave-games/coco-battle-royale-2/actions)
 [![size](https://img.shields.io/github/repo-size/psywave-games/coco-battle-royale-2)](https://github.com/psywave-games/coco-battle-royale-2/archive/refs/heads/master.zip)
+[![Engine:CC65](https://img.shields.io/badge/Engine-CC65-red)](https://cc65.github.io/) 
 
 > homebrew game for nintendo years 80 console, distributed as free software.
 
