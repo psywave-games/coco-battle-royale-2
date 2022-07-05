@@ -74,6 +74,8 @@
  */
 
 enum fsm_game_e {
+    FSM_MUSIC_MENU,
+    FSM_MUSIC_ARENA,
 	FSM_DRAW_MENU,
 	FSM_DRAW_ARENA,
 	FSM_MENU,
@@ -443,6 +445,16 @@ void main(void)
         updateInput();
 		
 		switch (gamestate) {
+            case FSM_MUSIC_MENU:
+                music_play(0);
+				gamestate = FSM_DRAW_MENU;
+                break;
+
+            case FSM_MUSIC_ARENA:
+                music_play(1);
+				gamestate = FSM_RESTART;
+                break;
+
             case FSM_DRAW_MENU:
                 ppu_off();
                 oam_clear();
@@ -505,7 +517,7 @@ void main(void)
                         case 3:
                         case 4:
                             joysticks = s;
-                            gamestate = FSM_RESTART;
+                            gamestate = FSM_MUSIC_ARENA;
                             /** when non-zero is inactive */
                             for(i = 0; i < MAX_PLAYERS; i++) {
                                 playerActive[i] = i >= s;
