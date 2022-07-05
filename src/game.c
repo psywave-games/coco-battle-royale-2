@@ -129,8 +129,9 @@ const char I18N_EN_4_PLAYERS[] = "4 PLAYERS";
 const char I18N_EN_RESTART_CNT[] = "STARTING IN   SECONDS...";
 const char I18N_EN_RESTART_BTN[] = " HOLD (ATACK) FOR NEW BATTLE!";
 const char I18N_EN_RESTART_COIN[] = "INSERT (COIN) FOR NEW BATTLE!!  ";
-const char I18N_EN_GAMEPLAY_NAME[] = "     COCO BATTLE ROYALE II     ";
-const char I18N_EN_GAMEPLAY_COUNT[] = "P\\ 1  P] 1  P^ 1  P_ 1  [ P   ";
+const char I18N_EN_GAMEPLAY_NAME[] = "      COCO BATTLE ROYALE II      ";
+const char I18N_EN_GAMEPLAY_PLAYERS[] = "P11 P21 P31 P41           \x10  /20";
+
 const char I18N_EN_LOGO[] = {
     0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x20, 0x20, 0x20, 0x6D, 0x6E, 0x6F, 0x6D, 0x6E, 0x6F,
     0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x20, 0x20, 0x20, 0x7D, 0x7E, 0x7F, 0x7D, 0x7E, 0x7F,
@@ -182,7 +183,13 @@ static const unsigned char good_seeds[] = {
     SEED_PACK(451), SEED_PACK(507)
 };
 
-const char palette[] = {
+const char paletteBackground[] = {
+	0x0f,0x30,0x27,0x0f,
+	0x0f,0x0f,0x0f,0x0f,
+	0x0f,0x27,0x30,0x0f,
+};
+
+const char paletteSprite[] = {
 	0x0f,0x30,0x27,0x16,
 	0x0f,0x2C,0x25,0x30,
 	0x0f,0x13,0x15,0x25,
@@ -248,7 +255,7 @@ void put_logo()
 {
     for (i = 0; i < 6; i++){
         vram_adr(NTADR_A(7, 5 + i));
-        vram_write((jp? I18N_JP_LOGO: I18N_EN_LOGO) + (i*17), 17);
+        vram_write((unsigned char *) (jp? I18N_JP_LOGO: I18N_EN_LOGO) + (i*17), 17);
     }
 
     put_ret(6, 4, 23, 10);
@@ -405,8 +412,8 @@ void ia_process(unsigned char npc)
 
 void main(void)
 {
-	pal_spr(palette);
-    pal_bg(palette);
+    pal_bg(paletteBackground);
+	pal_spr(paletteSprite);
 
 	/** game loop **/
 	for (;;)
@@ -445,10 +452,12 @@ void main(void)
                 oam_clear();
 				put_all(' ');
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
-				put_str(NTADR_A(1,1), I18N_EN_GAMEPLAY_NAME);
-				put_str(NTADR_A(1,28), I18N_EN_GAMEPLAY_COUNT);    
-                vram_adr(NTADR_A(27,28));
-                vram_put(16);
+				put_str(NTADR_A(0,28), I18N_EN_GAMEPLAY_NAME);
+				put_str(NTADR_A(0,1), I18N_EN_GAMEPLAY_PLAYERS);
+                vram_adr(ATADR_A(0,1));
+                for(j = 0; j < 4; j++) {
+                    vram_put(BR_BL_TR_TL(0,0,1,joysticks <= j));
+                }
                 gamestate = FSM_GAMEPLAY;
 				ppu_on_all();
 				break;
@@ -630,9 +639,9 @@ void main(void)
                 }
 
                 /** draw number of coocks **/
-                roosters_total = roosters_count; 
-                spr = oam_spr((29 * 8), (28 * 8) -1, '0' + (roosters_total / 10), 0, spr);
-                spr = oam_spr((30 * 8), (28 * 8) -1, '0' + (roosters_total % 10), 0, spr);
+                roosters_total = roosters_count;
+                spr = oam_spr((27 * 8), (1 * 8) -1, '0' + (roosters_total / 10), 0, spr);
+                spr = oam_spr((28 * 8), (1 * 8) -1, '0' + (roosters_total % 10), 0, spr);
                 oam_hide_rest(spr);
                 break;
 

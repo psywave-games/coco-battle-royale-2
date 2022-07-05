@@ -299,10 +299,10 @@ void __fastcall__ delay(unsigned char frames);
 
 //macro tro calculate attributetable addres from X,Y in compile time
 
-#define ATADR_A(x,y)    (ATPALLETE_A|(((((y)+1)/4)<<3)|(((x)+1)/4)))
-#define ATADR_B(x,y)    (ATPALLETE_B|(((((y)+1)/4)<<3)|(((x)+1)/4)))
-#define ATADR_C(x,y)    (ATPALLETE_C|(((((y)+1)/4)<<3)|(((x)+1)/4)))
-#define ATADR_D(x,y)    (ATPALLETE_D|(((((y)+1)/4)<<3)|(((x)+1)/4)))
+#define ATADR_A(x,y)    (ATPALLETE_A|((((y)/4)<<3)|((x)/4)))
+#define ATADR_B(x,y)    (ATPALLETE_B|((((y)/4)<<3)|((x)/4)))
+#define ATADR_C(x,y)    (ATPALLETE_C|((((y)/4)<<3)|((x)/4)))
+#define ATADR_D(x,y)    (ATPALLETE_D|((((y)/4)<<3)|((x)/4)))
 
 //macro to calculate pallete tile 
 
