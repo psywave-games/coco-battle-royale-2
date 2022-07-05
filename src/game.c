@@ -58,7 +58,7 @@
 #define SPR_EDGE                        0x6C
 #define SPR_LOGO                        0x60
 #define SPR_BONE                        0x6D
-#define SPR_POINTER                     0x1C
+#define SPR_POINTER                     0x5C
 #define SPR_LOGO_JAP                    0xC0
 #define SPR_JP_HITO                     0xAE
 #define SPR_JP_O                        0xBE
@@ -130,7 +130,7 @@ const char I18N_EN_RESTART_CNT[] = "STARTING IN   SECONDS...";
 const char I18N_EN_RESTART_BTN[] = " HOLD (ATACK) FOR NEW BATTLE!";
 const char I18N_EN_RESTART_COIN[] = "INSERT (COIN) FOR NEW BATTLE!!  ";
 const char I18N_EN_GAMEPLAY_NAME[] = "      COCO BATTLE ROYALE II      ";
-const char I18N_EN_GAMEPLAY_PLAYERS[] = "P11 P21 P31 P41           \x10  /20";
+const char I18N_EN_GAMEPLAY_PLAYERS[] = "\\P1 ]P1 ^P1 _P1           \x10  /20";
 
 const char I18N_EN_LOGO[] = {
     0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x20, 0x20, 0x20, 0x6D, 0x6E, 0x6F, 0x6D, 0x6E, 0x6F,
