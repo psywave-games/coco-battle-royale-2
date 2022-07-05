@@ -39,6 +39,7 @@ clean:
 	@rm -fv $(TARGETS)
 	@rm -fv $(OBJECTS)
 	@rm -fv $(ASSEMBLY_SOURCES)
+	@rm -fv *.zip
 	@rm -fv asm/crt0.o
 
 %.s: %.c

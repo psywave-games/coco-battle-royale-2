@@ -22,13 +22,13 @@
  */
 
 #define MAX_ENIMIES                     (20)
-#define MAX_PLAYERS                     (2)
+#define MAX_PLAYERS                     (4)
 #define SPEED                           (1)
 #define MIN_ARENA_X                     (6)
 #define MAX_ARENA_X                     (242)
 #define MID_ARENA_X                     ((MAX_ARENA_X/2)+MIN_ARENA_X)
-#define MIN_ARENA_Y                     (14)
-#define MAX_ARENA_Y                     (200)
+#define MIN_ARENA_Y                     (22)
+#define MAX_ARENA_Y                     (208)
 #define MID_ARENA_Y                     ((MAX_ARENA_Y/2)+MIN_ARENA_Y)
 #define RANGE_ARENA                     (40)
 #define LOOK_RIGHT                      (0)
@@ -58,14 +58,24 @@
 #define SPR_EDGE                        0x6C
 #define SPR_LOGO                        0x60
 #define SPR_BONE                        0x6D
-#define SPR_POINTER                     0x1C
+#define SPR_POINTER                     0x5C
 #define SPR_LOGO_JAP                    0xC0
+#define SPR_JP_HITO                     0xAE
+#define SPR_JP_O                        0xBE
+#define SPR_JP_N                        0xCE
+#define SPR_JP_DO                       0xDE
+#define SPR_JP_RI                       0xEE
+#define SPR_JP_TSU                      0xFE
+#define SPR_JP_DZU                      0xAF
+#define SPR_JP_KU                       0xBF
 
 /**
  * TYPES
  */
 
 enum fsm_game_e {
+    FSM_MUSIC_MENU,
+    FSM_MUSIC_ARENA,
 	FSM_DRAW_MENU,
 	FSM_DRAW_ARENA,
 	FSM_MENU,
@@ -94,7 +104,8 @@ struct coco_s {
             unsigned char flipped: 1;
             unsigned char attacking: 1;
             unsigned char recovering: 1;
-            unsigned char health: 1;
+            unsigned char coloreven: 1;
+            unsigned char death: 1;
         } status;
     } info;
 };
@@ -115,13 +126,49 @@ struct framecount_s {
 const char I18N_EN_CONTINUE[] = "CONTINUE";
 const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
 const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
+const char I18N_EN_3_PLAYERS[] = "3 PLAYERS";
+const char I18N_EN_4_PLAYERS[] = "4 PLAYERS";
+const char I18N_EN_RESTART_CNT[] = "STARTING IN   SECONDS...";
+const char I18N_EN_RESTART_BTN[] = " HOLD (ATACK) FOR NEW BATTLE!";
+const char I18N_EN_RESTART_COIN[] = "INSERT (COIN) FOR NEW BATTLE!!  ";
+const char I18N_EN_GAMEPLAY_NAME[] = "      COCO BATTLE ROYALE II      ";
+const char I18N_EN_GAMEPLAY_PLAYERS[] = "\\P1 ]P1 ^P1 _P1           \x10  /20";
+
+const char I18N_EN_LOGO[] = {
+    0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x20, 0x20, 0x20, 0x6D, 0x6E, 0x6F, 0x6D, 0x6E, 0x6F,
+    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x20, 0x20, 0x20, 0x7D, 0x7E, 0x7F, 0x7D, 0x7E, 0x7F,
+    0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x20, 0x8D, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
+    0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x20, 0x8D, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
+    0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
+    0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0x9E, 0x9F, 0x9D, 0x9E, 0x9F
+};
 
 const char jp = FAMICON_VERSION;
-const char I18N_JP_CONTINUE[] = {' ', ' ', ' ', ' ', ' ', 6, 7, 8, 0};
-const char I18N_JP_1_PLAYERS[] = {' ', ' ', '1', 1, 2, 3, 4, 5, 0};
-const char I18N_JP_2_PLAYERS[] = {' ', ' ', '2', 1, 2, 3, 4, 5, 0};
+const char I18N_JP_CONTINUE[] = {
+    ' ', ' ', ' ', ' ', ' ', SPR_JP_TSU, SPR_JP_DZU, SPR_JP_KU, 0
+};
+const char I18N_JP_1_PLAYERS[] = {
+    ' ', ' ', '1', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+};
+const char I18N_JP_2_PLAYERS[] = {
+    ' ', ' ', '2', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+};
+const char I18N_JP_3_PLAYERS[] = {
+    ' ', ' ', '3', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+};
+const char I18N_JP_4_PLAYERS[] = {
+    ' ', ' ', '4', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+};
 
-
+const char I18N_JP_LOGO[] = {
+    0xC0, 0xC1, 0xC2, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0x20,
+    0xD0, 0xD1, 0xD2, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0x20,
+    0xE0, 0xE1, 0xE2, 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0x20,
+    0xF0, 0xF1, 0xF2, 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD,
+    0x20, 0x20, 0x20, 'C', 'O', 'C', 'O', ' ', 'B', 'A', 'T', 'T', 'L', 'E', 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 'R', 'O', 'Y', 'A', 'L', 'E', ' ', 'I', 'I', 0x20, 0x20, 0x20, 0x20, 
+};
+ 
 /** GLOBAL CONSTANTS **/
 static const unsigned char npc_groups[] = {
     0, 0, 0, 1, 2,
@@ -138,23 +185,32 @@ static const unsigned char good_seeds[] = {
     SEED_PACK(451), SEED_PACK(507)
 };
 
-const char palSprites[]={
+const char paletteBackground[] = {
+	0x0f,0x30,0x27,0x0f,
+	0x0f,0x0f,0x0f,0x0f,
+	0x0f,0x27,0x30,0x0f,
+};
+
+const char paletteSprite[] = {
 	0x0f,0x30,0x27,0x16,
-	0x0f,0x27,0x30,0x16,
-	0x0f,0x2D,0x27,0x16,
+	0x0f,0x2C,0x25,0x30,
+	0x0f,0x13,0x15,0x25,
+	0x0f,0x26,0x2A,0x36,
 };
 
 /** GLOBAL VARIABLES **/
 static struct npc_ia_s npcs[MAX_ENIMIES];       /** IA controll **/
 static struct framecount_s framecount;          /** IA manager groups **/
 static struct coco_s players[MAX_ENIMIES];		/** all cocks entitys **/
-static unsigned char gamepad[MAX_PLAYERS];		/** joystick inputs **/
-static unsigned char gamepad_old[MAX_PLAYERS];  /** last frame joysticks inputs **/
 static enum fsm_game_e gamestate;	            /** finite state machine **/
-static unsigned char two_players;				/** local multiplayer mode **/
 static unsigned char seed;						/** randomness control **/
 static unsigned char roosters_count;            /** cocks counter **/
 static unsigned char roosters_total;            /** total of cocks arrive **/
+
+/** micromages 4 players **/
+static unsigned char joysticks = 1;				/** local multiplayer mode **/
+static unsigned char gamepad_old[MAX_PLAYERS];  /** last frame joysticks inputs **/
+static const unsigned char* const gamepad = &joy1;   /** joystick inputs **/
 
 /** GENERAL VARIABLES **/
 static signed char s;
@@ -180,11 +236,23 @@ void put_str(unsigned int adr,const char *str)
 void put_ret(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char y2)
 {
     /** adjust size **/
-    x2 += 1; y2 += 1;
+    x2 += 1; 
+    y2 += 1;
+    j = x2 - x1;
 
-    /** draw border lines **/
-    for (i = x1; i < x2; vram_adr(NTADR_A(i,y1)), vram_put(SPR_EDGE + 0x40), vram_adr(NTADR_A(i,y2)), vram_put(SPR_EDGE + 0x40), i++);
-    for (i = y1; i < y2; vram_adr(NTADR_A(x1,i)), vram_put(SPR_EDGE + 0x50), vram_adr(NTADR_A(x2,i)), vram_put(SPR_EDGE + 0x50), i++);
+    /** draw horizontal lines **/
+    vram_adr(NTADR_A(x1,y1));
+    vram_fill(SPR_EDGE + 0x40, j);
+    vram_adr(NTADR_A(x1,y2));
+    vram_fill(SPR_EDGE + 0x40, j);
+   
+    /** draw vertical lines **/
+    for (i = y1; i < y2; i++) {
+        vram_adr(NTADR_A(x1,i));
+        vram_put(SPR_EDGE + 0x50);
+        vram_adr(NTADR_A(x2,i));
+        vram_put(SPR_EDGE + 0x50);
+    }
     
     /** draw border edges **/
     vram_adr(NTADR_A(x1, y1));
@@ -199,54 +267,12 @@ void put_ret(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char
 
 void put_logo()
 {
-    /** adjust position on screen **/
-    const unsigned char pivot_x = 7;
-    const unsigned char pivot_y = 5;
-
-    /** JAP VERSION **/
-    if (jp) {
-        /** draw text **/
-        for (i = 0; i < 4; i++) for (j = 0; j < 14; j++) {
-            vram_adr(NTADR_A(pivot_x + j + 3, pivot_y + i));
-            vram_put(SPR_LOGO_JAP + (i * 0x10) + j);
-        }
-
-        /** repeat first hideogram**/
-        for (i = 0; i < 4; i++) for (j = 0; j < 3; j++) {
-            vram_adr(NTADR_A(pivot_x + j, pivot_y + i));
-            vram_put(SPR_LOGO_JAP + (i * 0x10) + j);
-        }
-        put_str(NTADR_A(pivot_x, pivot_y + 4), "   COCO BATTLE   ");
-        put_str(NTADR_A(pivot_x, pivot_y + 5), "    ROYALE II    ");
-
-        put_ret(pivot_x -1, pivot_y - 1, pivot_x + 16, pivot_y + 5);
-        return;
+    for (i = 0; i < 6; i++){
+        vram_adr(NTADR_A(7, 5 + i));
+        vram_write((unsigned char *) (jp? I18N_JP_LOGO: I18N_EN_LOGO) + (i*17), 17);
     }
 
-    /** draw text **/
-    for (i = 0; i < 7; i++) for (j = 0; j < 12; j++) {
-        vram_adr(NTADR_A(pivot_x + j, pivot_y + i));
-        vram_put(SPR_LOGO + (i * 0x10) + j);
-    }
-
-    /** draw bones **/
-    for (i = 0; i < 2; i++) {
-        vram_adr_put(pivot_x + 11 + (i*3), pivot_y, SPR_BONE);
-        vram_adr_put(pivot_x + 12 + (i*3), pivot_y, SPR_BONE + 1);
-        vram_adr_put(pivot_x + 13 + (i*3), pivot_y, SPR_BONE + 2);
-        vram_adr_put(pivot_x + 11 + (i*3), pivot_y + 1, SPR_BONE + 0x10);
-        vram_adr_put(pivot_x + 12 + (i*3), pivot_y + 1, SPR_BONE + 0x11);
-        vram_adr_put(pivot_x + 13 + (i*3), pivot_y + 1, SPR_BONE + 0x12);
-        vram_adr_put(pivot_x + 12 + (i*3), pivot_y + 5, SPR_BONE + 0x31);
-        vram_adr_put(pivot_x + 13 + (i*3), pivot_y + 5, SPR_BONE + 0x32);
-        for (j = 2; j < 5; j++) {
-            vram_adr_put(pivot_x + 12 + (i*3), pivot_y + j, SPR_BONE + 0x21);
-            vram_adr_put(pivot_x + 13 + (i*3), pivot_y + j, SPR_BONE + 0x22);
-        }
-    }
-
-    /** draw border **/
-    put_ret(pivot_x -1, pivot_y - 1, pivot_x + 16, pivot_y + 5);
+    put_ret(6, 4, 23, 10);
 }
 
 void spawn_cocks()
@@ -255,16 +281,18 @@ void spawn_cocks()
 
 	for (i = 0; i < MAX_ENIMIES; i++)
 	{ 
-        if (i <= two_players) {
+        if (i < joysticks) {
             // random player positions
-            players[i].x = MID_ARENA_X + (two_players? (i? RANGE_ARENA/2: RANGE_ARENA/(-2)): 0);
-            players[i].y = MID_ARENA_Y;
+            players[i].x = MID_ARENA_X + (i&1? RANGE_ARENA/2: RANGE_ARENA/(-2));
+            players[i].y = MID_ARENA_Y + (i&2? RANGE_ARENA/2: RANGE_ARENA/(-2));
         }
         else do {
             // random npc positions
             players[i].x = rand8();
             players[i].y = rand8();
-            npcs[i].input = FSM_DEFAULT;
+            // reset npc behavior
+            npcs[i].input = 0;
+            npcs[i].state = FSM_DEFAULT;
         }
         while (
             // uncenter npc positions
@@ -273,7 +301,8 @@ void spawn_cocks()
         );
         // look to center
         players[i].info.status.flipped = players[i].x > MID_ARENA_X? LOOK_LEFT: LOOK_RIGHT;
-        players[i].info.status.health = TRUE;
+        players[i].info.status.coloreven = !(i & 1);
+        players[i].info.status.death = FALSE;
 	}
 }
 
@@ -301,7 +330,7 @@ void ia_hunter_cycle()
                 if (i == j) {
                     continue;
                 }
-                if (!players[j].info.status.health) {
+                if (players[j].info.status.death) {
                     continue;
                 }
                 // calc distance aproximy
@@ -328,7 +357,7 @@ void ia_process(unsigned char npc)
 
         case FSM_HUNTER:
             j = npcs[npc].target;
-            if (!players[j].info.status.health) {
+            if (players[j].info.status.death) {
                 npcs[npc].state = FSM_RANDOM;
                 break;
             }
@@ -397,9 +426,8 @@ void ia_process(unsigned char npc)
 
 void main(void)
 {
-	pal_spr(palSprites);
-	pal_col(1,0x30);
-	pal_col(2,0x27);
+    pal_bg(paletteBackground);
+	pal_spr(paletteSprite);
 
 	/** game loop **/
 	for (;;)
@@ -411,21 +439,31 @@ void main(void)
 		ppu_wait_nmi();
 
 		/** joystick inputs **/
-        for (
-            i = 0; i <= two_players;
-            gamepad_old[i] = gamepad[i],
-            gamepad[i] = pad_poll(i),
-            i++
-        );
+        for (i = 0; i < joysticks; i++) {
+            gamepad_old[i] = gamepad[i];
+        }
+        updateInput();
 		
 		switch (gamestate) {
+            case FSM_MUSIC_MENU:
+                music_play(0);
+				gamestate = FSM_DRAW_MENU;
+                break;
+
+            case FSM_MUSIC_ARENA:
+                music_play(1);
+				gamestate = FSM_RESTART;
+                break;
+
             case FSM_DRAW_MENU:
                 ppu_off();
                 oam_clear();
-				put_all(NULL);
+				put_all(' ');
                 put_logo();
                 put_str(NTADR_A(11,16), jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS);
                 put_str(NTADR_A(11,17), jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS);
+                put_str(NTADR_A(11,18), jp? I18N_JP_3_PLAYERS: I18N_EN_3_PLAYERS);
+                put_str(NTADR_A(11,19), jp? I18N_JP_4_PLAYERS: I18N_EN_4_PLAYERS);
                 if (roosters_count) {
                     put_str(NTADR_A(11,15), jp? I18N_JP_CONTINUE: I18N_EN_CONTINUE);
                 }
@@ -436,42 +474,54 @@ void main(void)
 			case FSM_DRAW_ARENA:
 				ppu_off();
                 oam_clear();
-				put_all(NULL);
+				put_all(' ');
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
-				put_str(NTADR_A(1,27),"COCKS:              PLAYERS:");
-				put_str(NTADR_A(1,28),"PRESS (START) FOR NEW BATTLE!");
-                vram_adr_put(29, 27, '1' + two_players);
-				gamestate = FSM_GAMEPLAY;
+				put_str(NTADR_A(0,28), I18N_EN_GAMEPLAY_NAME);
+				put_str(NTADR_A(0,1), I18N_EN_GAMEPLAY_PLAYERS);
+                vram_adr(ATADR_A(0,1));
+                for(j = 0; j < 4; j++) {
+                    vram_put(BR_BL_TR_TL(0,0,1,joysticks <= j));
+                }
+                gamestate = FSM_GAMEPLAY;
 				ppu_on_all();
 				break;
 
             case FSM_MENU:
                 /** select best seed by frame **/
-                seed = (seed + 1) % sizeof(good_seeds);
+                /** !jp randomization adjustment to standardize US/JAP**/
+                seed = (seed + 1 + !jp) % sizeof(good_seeds);
 
                 /** switch between resume, singleplayers and multiplayer **/
-                if (gamepad_old[PLAYER_1] == 0) {
-                    s = s + (PRESSING(gamepad[PLAYER_1], PAD_DOWN) - PRESSING(gamepad[PLAYER_1], PAD_UP));
+                if (gamepad_old[PLAYER_1] == 0 && gamepad[PLAYER_1] & PAD_UP) {
+                    s -= 1;
+                }
+                else if (gamepad_old[PLAYER_1] == 0 && gamepad[PLAYER_1] & PAD_DOWN) {
+                    s += 1;
                 }
 
                 /** Limit menu options **/
-                s = CLAMP(s, roosters_count == 0, 2);
+                s = CLAMP(s, roosters_count == 0, 4);
 
                 /** begin start the game **/
-                if (gamepad[PLAYER_1] & (PAD_A | PAD_START)) {
+                i = gamepad[PLAYER_1] & PAD_START; /** start button or insert coin to use all options **/
+                i|= (gamepad_old[PLAYER_1] == 0) && (gamepad[PLAYER_1] & PAD_SELECT) && (s == 0); /* use only resume */
+
+                if (i) {
 				    switch (s) {
                         case 0:
                             gamestate = FSM_DRAW_ARENA;
                             break;
 
                         case 1:
-                            two_players = 0;
-                            gamestate = FSM_RESTART;
-                            break;
-
                         case 2:
-                            two_players = 1;
-                            gamestate = FSM_RESTART;
+                        case 3:
+                        case 4:
+                            joysticks = s;
+                            gamestate = FSM_MUSIC_ARENA;
+                            /** when non-zero is inactive */
+                            for(i = 0; i < MAX_PLAYERS; i++) {
+                                playerActive[i] = i >= s;
+                            }
                             break;
                     }
                 }
@@ -503,7 +553,7 @@ void main(void)
                 /** entitys loop **/
                 for (i = 0; i < MAX_ENIMIES; i++) {
                     /** out of game **/
-                    if (!players[i].info.status.health) {
+                    if (players[i].info.status.death) {
                         continue;
                     }
 
@@ -511,7 +561,7 @@ void main(void)
                     roosters_count += 1;
                     
                     /** player input **/
-                    if (i <= two_players) {
+                    if (i < joysticks) {
                         if(gamepad[i] & PAD_LEFT) {
                             players[i].x -= 1 << SPEED;
                             s = -1;
@@ -528,7 +578,7 @@ void main(void)
                         else if(gamepad[i] & PAD_DOWN) {
                             players[i].y += 1 << SPEED;
                         }
-                        if ((gamepad[i] & PAD_A) && !(gamepad_old[i] & PAD_A) && players[i].framedata == 0) {
+                        if ((gamepad[i] & (PAD_B | PAD_A)) && !(gamepad_old[i] & (PAD_B | PAD_A)) && players[i].framedata == 0) {
                             players[i].framedata = FRAME_PREPARE;
                             players[i].info.status.attacking = 1;
                         }
@@ -592,37 +642,30 @@ void main(void)
                                 continue;
                             }
                             /** pidgeot is fainted dude **/
-                            if (!players[j].info.status.health) {
+                            if (players[j].info.status.death) {
                                 continue;
                             }
                             /** far far away **/
                             if (DISTANCE(players[i].x, players[j].x) > 8 || DISTANCE(players[i].y, players[j].y) > 8) {
                                 continue;
                             }
-                            players[j].info.status.health = FALSE;
+                            players[j].info.status.death = TRUE;
                         }
                     }
 
-                    /** draw cocks **/
-                    switch (i) {
-                        case PLAYER_2:
-                        if (two_players) {
-                        case PLAYER_1:
-                            spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
-                            spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, i, spr);
-                            break;
-                        }
-
-                        default:
-                            spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, 2, spr);
-                            break;
+                    /** draw pointer **/
+                    if (i < joysticks) {
+                        spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
                     }
+
+                    /** draw cock **/   
+                    spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, (i >> 1), spr);
                 }
 
                 /** draw number of coocks **/
                 roosters_total = roosters_count;
-                spr = oam_spr((7 * 8), (27 * 8) -1, '0' + (roosters_total / 10), 0, spr);
-                spr = oam_spr((8 * 8), (27 * 8) -1, '0' + (roosters_total % 10), 0, spr);
+                spr = oam_spr((27 * 8), (1 * 8) -1, '0' + (roosters_total / 10), 0, spr);
+                spr = oam_spr((28 * 8), (1 * 8) -1, '0' + (roosters_total % 10), 0, spr);
                 oam_hide_rest(spr);
                 break;
 
