@@ -27,8 +27,8 @@
 #define MIN_ARENA_X                     (6)
 #define MAX_ARENA_X                     (242)
 #define MID_ARENA_X                     ((MAX_ARENA_X/2)+MIN_ARENA_X)
-#define MIN_ARENA_Y                     (14)
-#define MAX_ARENA_Y                     (200)
+#define MIN_ARENA_Y                     (22)
+#define MAX_ARENA_Y                     (208)
 #define MID_ARENA_Y                     ((MAX_ARENA_Y/2)+MIN_ARENA_Y)
 #define RANGE_ARENA                     (40)
 #define LOOK_RIGHT                      (0)
@@ -126,13 +126,18 @@ const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
 const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
 const char I18N_EN_3_PLAYERS[] = "3 PLAYERS";
 const char I18N_EN_4_PLAYERS[] = "4 PLAYERS";
+const char I18N_EN_RESTART_CNT[] = "STARTING IN   SECONDS...";
+const char I18N_EN_RESTART_BTN[] = " HOLD (ATACK) FOR NEW BATTLE!";
+const char I18N_EN_RESTART_COIN[] = "INSERT (COIN) FOR NEW BATTLE!!  ";
+const char I18N_EN_GAMEPLAY_NAME[] = "     COCO BATTLE ROYALE II     ";
+const char I18N_EN_GAMEPLAY_COUNT[] = "P\\ 1  P] 1  P^ 1  P_ 1  [ P   ";
 const char I18N_EN_LOGO[] = {
     0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x20, 0x20, 0x20, 0x6D, 0x6E, 0x6F, 0x6D, 0x6E, 0x6F,
     0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x20, 0x20, 0x20, 0x7D, 0x7E, 0x7F, 0x7D, 0x7E, 0x7F,
     0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x20, 0x8D, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
     0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x20, 0x8D, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
-    0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0x20, 0x8D, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
-    0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0x20, 0x20, 0x20, 0x9D, 0x9E, 0x9F, 0x9D, 0x9E, 0x9F
+    0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
+    0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0x9E, 0x9F, 0x9D, 0x9E, 0x9F
 };
 
 const char jp = FAMICON_VERSION;
@@ -440,10 +445,11 @@ void main(void)
                 oam_clear();
 				put_all(' ');
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
-				put_str(NTADR_A(1,27),"COCKS:              PLAYERS:");
-				put_str(NTADR_A(1,28),"PRESS (START) FOR NEW BATTLE!");
-                vram_adr_put(29, 27, '0' + joysticks);
-				gamestate = FSM_GAMEPLAY;
+				put_str(NTADR_A(1,1), I18N_EN_GAMEPLAY_NAME);
+				put_str(NTADR_A(1,28), I18N_EN_GAMEPLAY_COUNT);    
+                vram_adr(NTADR_A(27,28));
+                vram_put(16);
+                gamestate = FSM_GAMEPLAY;
 				ppu_on_all();
 				break;
 
@@ -624,9 +630,9 @@ void main(void)
                 }
 
                 /** draw number of coocks **/
-                roosters_total = roosters_count;
-                spr = oam_spr((7 * 8), (27 * 8) -1, '0' + (roosters_total / 10), 0, spr);
-                spr = oam_spr((8 * 8), (27 * 8) -1, '0' + (roosters_total % 10), 0, spr);
+                roosters_total = roosters_count; 
+                spr = oam_spr((29 * 8), (28 * 8) -1, '0' + (roosters_total / 10), 0, spr);
+                spr = oam_spr((30 * 8), (28 * 8) -1, '0' + (roosters_total % 10), 0, spr);
                 oam_hide_rest(spr);
                 break;
 
