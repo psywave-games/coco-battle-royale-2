@@ -38,7 +38,8 @@
 #define FRAME_PREPARE                   (7)
 #define FRAME_ATTACKING                 (6)
 #define FRAME_RECOVERY                  (2)
-
+#define DIGIT_WINNER                    (22)
+#define DIGIT_NOOB                      (21)
 /**
  * FUNCTIONS
  */
@@ -198,6 +199,11 @@ const char paletteSprite[] = {
 	0x0f,0x26,0x2A,0x36,
 };
 
+const char digit_lockup[2][23] = {
+    {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'N', 'W'},
+    {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '2', ' ', ' '}
+};
+
 /** GLOBAL VARIABLES **/
 static struct npc_ia_s npcs[MAX_ENIMIES];       /** IA controll **/
 static struct framecount_s framecount;          /** IA manager groups **/
@@ -212,10 +218,13 @@ static unsigned char joysticks = 1;				/** local multiplayer mode **/
 static unsigned char gamepad_old[MAX_PLAYERS];  /** last frame joysticks inputs **/
 static const unsigned char* const gamepad = &joy1;   /** joystick inputs **/
 
+/** score rank 4 players **/
+static unsigned char player_score[4] = {0, 1, 11, 21};
+
 /** GENERAL VARIABLES **/
 static signed char s;
 static unsigned int big1, big2;
-static unsigned char i,j,r;
+static unsigned char i,j,l,r;
 static unsigned char spr;
 
 /*
@@ -278,7 +287,11 @@ void put_logo()
 void spawn_cocks()
 {
     set_rand(SEED_UNPACK(good_seeds[seed]));
-
+    /** reset scores**/
+    for (i = 0; i < MAX_PLAYERS; i++) {
+        player_score[i] = 0;
+    }
+    /** reset postions **/
 	for (i = 0; i < MAX_ENIMIES; i++)
 	{ 
         if (i < joysticks) {
@@ -649,7 +662,31 @@ void main(void)
                             if (DISTANCE(players[i].x, players[j].x) > 8 || DISTANCE(players[i].y, players[j].y) > 8) {
                                 continue;
                             }
+
+                            /** kill store **/
                             players[j].info.status.death = TRUE;
+
+                            /** save score **/
+                            for (l = 0; l < joysticks; l++){
+                                /** winner **/
+                                if (i == l && roosters_total == 2) {
+                                    player_score[l] = DIGIT_WINNER;
+                                }
+                                /** looser **/
+                                if (j == l) {
+                                    /** set ranking  **/
+                                    player_score[l] = roosters_total;
+                                    /** set noob **/
+                                    if (digit_lockup[1][player_score[l]] == '2') {
+                                        player_score[l] = DIGIT_NOOB;
+                                    }
+                                    /** show 1 in background **/
+                                    if (digit_lockup[1][player_score[l]] == '1') {
+                                        vram_adr(ATADR_A(l<<2,1));
+                                        vram_put(BR_BL_TR_TL(0,0,joysticks <= j,joysticks <= j));
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -664,8 +701,23 @@ void main(void)
 
                 /** draw number of coocks **/
                 roosters_total = roosters_count;
-                spr = oam_spr((27 * 8), (1 * 8) -1, '0' + (roosters_total / 10), 0, spr);
-                spr = oam_spr((28 * 8), (1 * 8) -1, '0' + (roosters_total % 10), 0, spr);
+                spr = oam_spr((27 * 8), (1 * 8) -1, digit_lockup[1][roosters_count], 0, spr);
+                spr = oam_spr((28 * 8), (1 * 8) -1, digit_lockup[0][roosters_count], 0, spr);
+
+                /** draw player sores **/
+                if (player_score[0]) {
+                    spr = oam_spr((3 * 8), (1 * 8) -1, digit_lockup[0][player_score[0]], 0, spr);
+                }
+                if (player_score[1]) {
+                    spr = oam_spr((7 * 8), (1 * 8) -1, digit_lockup[0][player_score[1]], 0, spr);
+                }
+                if (player_score[2]) {
+                    spr = oam_spr((11 * 8), (1 * 8) -1, digit_lockup[0][player_score[2]], 0, spr);
+                }
+                if (player_score[3]) {
+                    spr = oam_spr((15 * 8), (1 * 8) -1, digit_lockup[0][player_score[3]], 0, spr);
+                }
+
                 oam_hide_rest(spr);
                 break;
 
