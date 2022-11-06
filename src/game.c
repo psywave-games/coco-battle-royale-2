@@ -516,6 +516,7 @@ void main(void)
                 /** select best seed by frame **/
                 /** !jp randomization adjustment to standardize US/JAP**/
                 seed = (seed + 1 + !jp) % sizeof(good_seeds);
+                pal_col(2, (16 << (seed >> 3)) + 7); /**< 17, 37 **/
 
                 /** switch between resume, singleplayers and multiplayer **/
                 if (gamepad_old[PLAYER_1] == 0 && gamepad[PLAYER_1] & PAD_UP) {
