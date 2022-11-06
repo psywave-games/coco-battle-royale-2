@@ -129,6 +129,8 @@ const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
 const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
 const char I18N_EN_3_PLAYERS[] = "3 PLAYERS";
 const char I18N_EN_4_PLAYERS[] = "4 PLAYERS";
+const char I18N_EN_CREDITS_1[] = "RODRIGO DORNELLES (C) 2022";
+const char I18N_EN_CREDITS_2[] = "HTTP://PSYWAVE-GAMES.GITHUB.IO";
 const char I18N_EN_RESTART_CNT[] = "STARTING IN   SECONDS...";
 const char I18N_EN_RESTART_BTN[] = " HOLD (ATACK) FOR NEW BATTLE!";
 const char I18N_EN_RESTART_COIN[] = "INSERT (COIN) FOR NEW BATTLE!!  ";
@@ -493,6 +495,9 @@ void main(void)
                 put_str(NTADR_A(11,17), jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS);
                 put_str(NTADR_A(11,18), jp? I18N_JP_3_PLAYERS: I18N_EN_3_PLAYERS);
                 put_str(NTADR_A(11,19), jp? I18N_JP_4_PLAYERS: I18N_EN_4_PLAYERS);
+                put_str(NTADR_A(3,26), I18N_EN_CREDITS_1);
+                put_str(NTADR_A(1,27), I18N_EN_CREDITS_2);
+
                 if (roosters_count) {
                     put_str(NTADR_A(11,15), jp? I18N_JP_CONTINUE: I18N_EN_CONTINUE);
                 }
