@@ -133,7 +133,7 @@ const char I18N_EN_RESTART_CNT[] = "STARTING IN   SECONDS...";
 const char I18N_EN_RESTART_BTN[] = " HOLD (ATACK) FOR NEW BATTLE!";
 const char I18N_EN_RESTART_COIN[] = "INSERT (COIN) FOR NEW BATTLE!!  ";
 const char I18N_EN_GAMEPLAY_NAME[] = "      COCO BATTLE ROYALE II      ";
-const char I18N_EN_GAMEPLAY_PLAYERS[] = "\\P1 ]P1 ^P1 _P1           \x10  /20";
+const char I18N_EN_GAMEPLAY_PLAYERS[] = "\\P  ]P  ^P  _P            \x10  /20";
 
 const char I18N_EN_LOGO[] = {
     0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x20, 0x20, 0x20, 0x6D, 0x6E, 0x6F, 0x6D, 0x6E, 0x6F,
@@ -200,8 +200,8 @@ const char paletteSprite[] = {
 };
 
 const char digit_lockup[2][23] = {
-    {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'N', 'W'},
-    {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '2', ' ', ' '}
+    {' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'B', '1'},
+    {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '2', 'N', 'W'}
 };
 
 /** GLOBAL VARIABLES **/
@@ -282,6 +282,22 @@ void put_logo()
     }
 
     put_ret(6, 4, 23, 10);
+}
+
+void put_score()
+{
+    vram_adr(ATADR_A(0,1));
+    /** show player icons */
+    for (l = 0; l < MAX_PLAYERS; ++l) {
+        vram_put(BR_BL_TR_TL(0,0,joysticks <= l,joysticks <= l));
+    }
+    /** show scores */
+    for (l = 0; l < joysticks; ++l) {
+        r = player_score[l];
+        vram_adr(NTADR_A(2 + (l << 2), 1));
+        vram_put(digit_lockup[1][r]);
+        vram_put(digit_lockup[0][r]);
+    }
 }
 
 void spawn_cocks()
@@ -491,10 +507,7 @@ void main(void)
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
 				put_str(NTADR_A(0,28), I18N_EN_GAMEPLAY_NAME);
 				put_str(NTADR_A(0,1), I18N_EN_GAMEPLAY_PLAYERS);
-                vram_adr(ATADR_A(0,1));
-                for(j = 0; j < 4; j++) {
-                    vram_put(BR_BL_TR_TL(0,0,1,joysticks <= j));
-                }
+                put_score();
                 gamestate = FSM_GAMEPLAY;
 				ppu_on_all();
 				break;
@@ -668,24 +681,31 @@ void main(void)
 
                             /** save score **/
                             for (l = 0; l < joysticks; l++){
-                                /** winner **/
-                                if (i == l && roosters_total == 2) {
+                                /** winner */
+                                if (roosters_total == 2 && i == l) {
                                     player_score[l] = DIGIT_WINNER;
                                 }
-                                /** looser **/
-                                if (j == l) {
+                                /** looser */
+                                else if (j == l) {
                                     /** set ranking  **/
                                     player_score[l] = roosters_total;
-                                    /** set noob **/
+                                   
+                                    /** noob */
                                     if (digit_lockup[1][player_score[l]] == '2') {
                                         player_score[l] = DIGIT_NOOB;
                                     }
-                                    /** show 1 in background **/
-                                    if (digit_lockup[1][player_score[l]] == '1') {
-                                        vram_adr(ATADR_A(l<<2,1));
-                                        vram_put(BR_BL_TR_TL(0,0,joysticks <= j,joysticks <= j));
-                                    }
+                                /** npc */
+                                } else {
+                                    continue;
                                 }
+
+                                /** flash screen & put score */
+                                pal_col(0,0x30);
+                                ppu_off();
+                                put_score();
+                                ppu_on_all();
+                                pal_col(0, paletteBackground[0]);
+                                break;
                             }
                         }
                     }
@@ -703,20 +723,6 @@ void main(void)
                 roosters_total = roosters_count;
                 spr = oam_spr((27 * 8), (1 * 8) -1, digit_lockup[1][roosters_count], 0, spr);
                 spr = oam_spr((28 * 8), (1 * 8) -1, digit_lockup[0][roosters_count], 0, spr);
-
-                /** draw player sores **/
-                if (player_score[0]) {
-                    spr = oam_spr((3 * 8), (1 * 8) -1, digit_lockup[0][player_score[0]], 0, spr);
-                }
-                if (player_score[1]) {
-                    spr = oam_spr((7 * 8), (1 * 8) -1, digit_lockup[0][player_score[1]], 0, spr);
-                }
-                if (player_score[2]) {
-                    spr = oam_spr((11 * 8), (1 * 8) -1, digit_lockup[0][player_score[2]], 0, spr);
-                }
-                if (player_score[3]) {
-                    spr = oam_spr((15 * 8), (1 * 8) -1, digit_lockup[0][player_score[3]], 0, spr);
-                }
 
                 oam_hide_rest(spr);
                 break;
