@@ -38,7 +38,8 @@
 #define FRAME_PREPARE                   (7)
 #define FRAME_ATTACKING                 (6)
 #define FRAME_RECOVERY                  (2)
-
+#define DIGIT_WINNER                    (22)
+#define DIGIT_NOOB                      (21)
 /**
  * FUNCTIONS
  */
@@ -128,11 +129,13 @@ const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
 const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
 const char I18N_EN_3_PLAYERS[] = "3 PLAYERS";
 const char I18N_EN_4_PLAYERS[] = "4 PLAYERS";
+const char I18N_EN_CREDITS_1[] = "RODRIGO DORNELLES (C) 2022";
+const char I18N_EN_CREDITS_2[] = "HTTP://PSYWAVE-GAMES.GITHUB.IO";
 const char I18N_EN_RESTART_CNT[] = "STARTING IN   SECONDS...";
 const char I18N_EN_RESTART_BTN[] = " HOLD (ATACK) FOR NEW BATTLE!";
 const char I18N_EN_RESTART_COIN[] = "INSERT (COIN) FOR NEW BATTLE!!  ";
 const char I18N_EN_GAMEPLAY_NAME[] = "      COCO BATTLE ROYALE II      ";
-const char I18N_EN_GAMEPLAY_PLAYERS[] = "\\P1 ]P1 ^P1 _P1           \x10  /20";
+const char I18N_EN_GAMEPLAY_PLAYERS[] = "\\P  ]P  ^P  _P            \x10  /20";
 
 const char I18N_EN_LOGO[] = {
     0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x20, 0x20, 0x20, 0x6D, 0x6E, 0x6F, 0x6D, 0x6E, 0x6F,
@@ -162,7 +165,7 @@ const char I18N_JP_4_PLAYERS[] = {
 
 const char I18N_JP_LOGO[] = {
     0xC0, 0xC1, 0xC2, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0x20,
-    0xD0, 0xD1, 0xD2, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0x20,
+    0x20, 0x20, 0xD2, 0x20, 0x20, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0x20,
     0xE0, 0xE1, 0xE2, 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0x20,
     0xF0, 0xF1, 0xF2, 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD,
     0x20, 0x20, 0x20, 'C', 'O', 'C', 'O', ' ', 'B', 'A', 'T', 'T', 'L', 'E', 0x20, 0x20, 0x20,
@@ -198,6 +201,11 @@ const char paletteSprite[] = {
 	0x0f,0x26,0x2A,0x36,
 };
 
+const char digit_lockup[2][23] = {
+    {' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 0xD1, '1'},
+    {' ', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '2', 0xD0, 'W'}
+};
+
 /** GLOBAL VARIABLES **/
 static struct npc_ia_s npcs[MAX_ENIMIES];       /** IA controll **/
 static struct framecount_s framecount;          /** IA manager groups **/
@@ -212,10 +220,13 @@ static unsigned char joysticks = 1;				/** local multiplayer mode **/
 static unsigned char gamepad_old[MAX_PLAYERS];  /** last frame joysticks inputs **/
 static const unsigned char* const gamepad = &joy1;   /** joystick inputs **/
 
+/** score rank 4 players **/
+static unsigned char player_score[4] = {0, 1, 11, 21};
+
 /** GENERAL VARIABLES **/
 static signed char s;
 static unsigned int big1, big2;
-static unsigned char i,j,r;
+static unsigned char i,j,l,r;
 static unsigned char spr;
 
 /*
@@ -275,10 +286,30 @@ void put_logo()
     put_ret(6, 4, 23, 10);
 }
 
+void put_score()
+{
+    vram_adr(ATADR_A(0,1));
+    /** show player icons */
+    for (l = 0; l < MAX_PLAYERS; ++l) {
+        vram_put(BR_BL_TR_TL(0,0,joysticks <= l,joysticks <= l));
+    }
+    /** show scores */
+    for (l = 0; l < joysticks; ++l) {
+        s = player_score[l];
+        vram_adr(NTADR_A(2 + (l << 2), 1));
+        vram_put(digit_lockup[1][s]);
+        vram_put(digit_lockup[0][s]);
+    }
+}
+
 void spawn_cocks()
 {
     set_rand(SEED_UNPACK(good_seeds[seed]));
-
+    /** reset scores**/
+    for (i = 0; i < MAX_PLAYERS; i++) {
+        player_score[i] = 0;
+    }
+    /** reset postions **/
 	for (i = 0; i < MAX_ENIMIES; i++)
 	{ 
         if (i < joysticks) {
@@ -464,6 +495,9 @@ void main(void)
                 put_str(NTADR_A(11,17), jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS);
                 put_str(NTADR_A(11,18), jp? I18N_JP_3_PLAYERS: I18N_EN_3_PLAYERS);
                 put_str(NTADR_A(11,19), jp? I18N_JP_4_PLAYERS: I18N_EN_4_PLAYERS);
+                put_str(NTADR_A(3,26), I18N_EN_CREDITS_1);
+                put_str(NTADR_A(1,27), I18N_EN_CREDITS_2);
+
                 if (roosters_count) {
                     put_str(NTADR_A(11,15), jp? I18N_JP_CONTINUE: I18N_EN_CONTINUE);
                 }
@@ -478,10 +512,7 @@ void main(void)
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
 				put_str(NTADR_A(0,28), I18N_EN_GAMEPLAY_NAME);
 				put_str(NTADR_A(0,1), I18N_EN_GAMEPLAY_PLAYERS);
-                vram_adr(ATADR_A(0,1));
-                for(j = 0; j < 4; j++) {
-                    vram_put(BR_BL_TR_TL(0,0,1,joysticks <= j));
-                }
+                put_score();
                 gamestate = FSM_GAMEPLAY;
 				ppu_on_all();
 				break;
@@ -490,6 +521,7 @@ void main(void)
                 /** select best seed by frame **/
                 /** !jp randomization adjustment to standardize US/JAP**/
                 seed = (seed + 1 + !jp) % sizeof(good_seeds);
+                pal_col(2, (16 << (seed >> 3)) + 7); /**< 17, 37 **/
 
                 /** switch between resume, singleplayers and multiplayer **/
                 if (gamepad_old[PLAYER_1] == 0 && gamepad[PLAYER_1] & PAD_UP) {
@@ -649,7 +681,37 @@ void main(void)
                             if (DISTANCE(players[i].x, players[j].x) > 8 || DISTANCE(players[i].y, players[j].y) > 8) {
                                 continue;
                             }
+
+                            /** kill store **/
                             players[j].info.status.death = TRUE;
+
+                            /** save score **/
+                            for (r = 0; r < joysticks; ++r){
+                                /** winner */
+                                if (roosters_total <= 2 && i == r) {
+                                    player_score[r] = DIGIT_WINNER;
+                                }
+                                /** looser */
+                                else if (j == r) {
+                                    /** set ranking  **/
+                                    player_score[r] = roosters_total;
+                                   
+                                    /** noob */
+                                    if (roosters_total == MAX_ENIMIES) {
+                                        player_score[r] = DIGIT_NOOB;
+                                    }
+                                /** npc */
+                                } else {
+                                    continue;
+                                }
+
+                                /** flash screen & put score */
+                                pal_col(0,0x30);
+                                ppu_off();
+                                put_score();
+                                ppu_on_all();
+                                pal_col(0, paletteBackground[0]);
+                            }
                         }
                     }
 
@@ -664,8 +726,9 @@ void main(void)
 
                 /** draw number of coocks **/
                 roosters_total = roosters_count;
-                spr = oam_spr((27 * 8), (1 * 8) -1, '0' + (roosters_total / 10), 0, spr);
-                spr = oam_spr((28 * 8), (1 * 8) -1, '0' + (roosters_total % 10), 0, spr);
+                spr = oam_spr((27 * 8), (1 * 8) -1, digit_lockup[1][roosters_count], 0, spr);
+                spr = oam_spr((28 * 8), (1 * 8) -1, digit_lockup[0][roosters_count], 0, spr);
+
                 oam_hide_rest(spr);
                 break;
 
