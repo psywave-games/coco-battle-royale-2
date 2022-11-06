@@ -293,10 +293,10 @@ void put_score()
     }
     /** show scores */
     for (l = 0; l < joysticks; ++l) {
-        r = player_score[l];
+        s = player_score[l];
         vram_adr(NTADR_A(2 + (l << 2), 1));
-        vram_put(digit_lockup[1][r]);
-        vram_put(digit_lockup[0][r]);
+        vram_put(digit_lockup[1][s]);
+        vram_put(digit_lockup[0][s]);
     }
 }
 
@@ -681,19 +681,19 @@ void main(void)
                             players[j].info.status.death = TRUE;
 
                             /** save score **/
-                            for (l = 0; l < joysticks; l++){
+                            for (r = 0; r < joysticks; ++r){
                                 /** winner */
-                                if (roosters_total == 2 && i == l) {
-                                    player_score[l] = DIGIT_WINNER;
+                                if (roosters_total <= 2 && i == r) {
+                                    player_score[r] = DIGIT_WINNER;
                                 }
                                 /** looser */
-                                else if (j == l) {
+                                else if (j == r) {
                                     /** set ranking  **/
-                                    player_score[l] = roosters_total;
+                                    player_score[r] = roosters_total;
                                    
                                     /** noob */
-                                    if (digit_lockup[1][player_score[l]] == '2') {
-                                        player_score[l] = DIGIT_NOOB;
+                                    if (roosters_total == MAX_ENIMIES) {
+                                        player_score[r] = DIGIT_NOOB;
                                     }
                                 /** npc */
                                 } else {
@@ -706,7 +706,6 @@ void main(void)
                                 put_score();
                                 ppu_on_all();
                                 pal_col(0, paletteBackground[0]);
-                                break;
                             }
                         }
                     }
