@@ -135,7 +135,6 @@ const char I18N_EN_RESTART_CNT[] = "STARTING IN   SECONDS...";
 const char I18N_EN_RESTART_BTN[] = " HOLD (ATACK) FOR NEW BATTLE!";
 const char I18N_EN_RESTART_COIN[] = "INSERT (COIN) FOR NEW BATTLE!!  ";
 const char I18N_EN_GAMEPLAY_NAME[] = "      COCO BATTLE ROYALE II      ";
-const char I18N_EN_GAMEPLAY_PLAYERS[] = "\\P  ]P  ^P  _P            \x10  /20";
 
 const char I18N_EN_LOGO[] = {
     0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x20, 0x20, 0x20, 0x6D, 0x6E, 0x6F, 0x6D, 0x6E, 0x6F,
@@ -191,7 +190,7 @@ static const unsigned char good_seeds[] = {
 const char paletteBackground[] = {
 	0x0f,0x30,0x27,0x0f,
 	0x0f,0x0f,0x0f,0x0f,
-	0x0f,0x27,0x30,0x0f,
+	0x0f,0x27,0x30,0x0f
 };
 
 const char paletteSprite[] = {
@@ -288,15 +287,17 @@ void put_logo()
 
 void put_score()
 {
-    vram_adr(ATADR_A(0,1));
-    /** show player icons */
-    for (l = 0; l < MAX_PLAYERS; ++l) {
-        vram_put(BR_BL_TR_TL(0,0,joysticks <= l,joysticks <= l));
-    }
     /** show scores */
-    for (l = 0; l < joysticks; ++l) {
+    for (l = 0; l < MAX_PLAYERS; ++l) {
         s = player_score[l];
-        vram_adr(NTADR_A(2 + (l << 2), 1));
+        vram_adr(NTADR_A(l << 2, 1));
+        if (l < joysticks) {
+            vram_put(0x5c + l);
+            vram_put('P');
+        } else {
+            vram_put(' ');
+            vram_put(' ');
+        }
         vram_put(digit_lockup[1][s]);
         vram_put(digit_lockup[0][s]);
     }
@@ -490,6 +491,8 @@ void main(void)
                 ppu_off();
                 oam_clear();
 				put_all(' ');
+                vram_adr(ATADR_A(0, 1));
+                vram_fill(0, 8*8);
                 put_logo();
                 put_str(NTADR_A(11,16), jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS);
                 put_str(NTADR_A(11,17), jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS);
@@ -511,7 +514,9 @@ void main(void)
 				put_all(' ');
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
 				put_str(NTADR_A(0,28), I18N_EN_GAMEPLAY_NAME);
-				put_str(NTADR_A(0,1), I18N_EN_GAMEPLAY_PLAYERS);
+				put_str(NTADR_A(26,1), "\x10  /20");
+                vram_adr(ATADR_A(0, 1));
+                vram_fill(BR_BL_TR_TL(0,2,2,0), 8*8);
                 put_score();
                 gamestate = FSM_GAMEPLAY;
 				ppu_on_all();
