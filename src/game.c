@@ -124,7 +124,7 @@ struct framecount_s {
 };
 
 /** INTERNACIONALIZATION **/
-const char I18N_EN_CONTINUE[] = "CONTINUE";
+const char I18N_EN_CONTINUE[] = "CONTINUE!";
 const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
 const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
 const char I18N_EN_3_PLAYERS[] = "3 PLAYERS";
@@ -139,33 +139,33 @@ const char I18N_EN_GAMEPLAY_NAME[] = "      COCO BATTLE ROYALE II      ";
 const char I18N_EN_LOGO[] = {
     0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x20, 0x20, 0x20, 0x6D, 0x6E, 0x6F, 0x6D, 0x6E, 0x6F,
     0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x20, 0x20, 0x20, 0x7D, 0x7E, 0x7F, 0x7D, 0x7E, 0x7F,
-    0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x20, 0x8D, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
-    0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x20, 0x8D, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
+    0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x20, 0x20, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
+    0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x20, 0x20, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
     0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
     0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0x9E, 0x9F, 0x9D, 0x9E, 0x9F
 };
 
 const char jp = FAMICON_VERSION;
 const char I18N_JP_CONTINUE[] = {
-    ' ', ' ', ' ', ' ', ' ', SPR_JP_TSU, SPR_JP_DZU, SPR_JP_KU, 0
+    ' ', ' ', ' ', SPR_JP_TSU, SPR_JP_DZU, SPR_JP_KU, ' ', ' ', 0
 };
 const char I18N_JP_1_PLAYERS[] = {
-    ' ', ' ', '1', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+    ' ', '1',  SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
 };
 const char I18N_JP_2_PLAYERS[] = {
-    ' ', ' ', '2', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+    ' ', '2', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
 };
 const char I18N_JP_3_PLAYERS[] = {
-    ' ', ' ', '3', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+    ' ', '3', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
 };
 const char I18N_JP_4_PLAYERS[] = {
-    ' ', ' ', '4', SPR_JP_HITO, SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+    ' ', '4', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
 };
 
 const char I18N_JP_LOGO[] = {
-    0xC0, 0xC1, 0xC2, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0x20,
-    0x20, 0x20, 0xD2, 0x20, 0x20, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0x20,
-    0xE0, 0xE1, 0xE2, 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0x20,
+    0xC0, 0xC1, 0xC2, 0xC0, 0xC1, 0xC2, 0x20, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0x20,
+    0x20, 0x20, 0xD2, 0x20, 0x20, 0xD2, 0x20, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0x20,
+    0x20, 0x20, 0xE2, 0x20, 0x20, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0x20,
     0xF0, 0xF1, 0xF2, 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD,
     0x20, 0x20, 0x20, 'C', 'O', 'C', 'O', ' ', 'B', 'A', 'T', 'T', 'L', 'E', 0x20, 0x20, 0x20,
     0x20, 0x20, 0x20, 0x20, 'R', 'O', 'Y', 'A', 'L', 'E', ' ', 'I', 'I', 0x20, 0x20, 0x20, 0x20, 
@@ -200,9 +200,9 @@ const char paletteSprite[] = {
 	0x0f,0x26,0x2A,0x36,
 };
 
-const char digit_lockup[2][23] = {
-    {' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 0xD1, '1'},
-    {' ', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '2', 0xD0, 'W'}
+const char digit_lockup[2][] = {
+    {' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 0xD1, '1', '2', '3'},
+    {' ', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '2', 0xD0, 0xFF, 0xEF, 0xDF}
 };
 
 /** GLOBAL VARIABLES **/
@@ -278,11 +278,11 @@ void put_ret(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char
 void put_logo()
 {
     for (i = 0; i < 6; i++){
-        vram_adr(NTADR_A(7, 5 + i));
+        vram_adr(NTADR_A(7, 4 + i));
         vram_write((unsigned char *) (jp? I18N_JP_LOGO: I18N_EN_LOGO) + (i*17), 17);
     }
 
-    put_ret(6, 4, 23, 10);
+    put_ret(6, 3, 23, 9);
 }
 
 void put_score()
@@ -490,17 +490,27 @@ void main(void)
             case FSM_DRAW_MENU:
                 ppu_off();
                 oam_clear();
+                /** reset nametable */
 				put_all(' ');
+                /** reset attribute table*/
                 vram_adr(ATADR_A(0, 1));
                 vram_fill(0, 8*8);
+                /** colorize 2 in JAP version*/
+                vram_adr(ATADR_A(18,6));
+                vram_put(BR_BL_TR_TL(3,0,0,0));
+                /** colorize link */
+                vram_adr(ATADR_A(1,26));
+                vram_fill(BR_BL_TR_TL(3,3,0,0), 30);
+                /** game title */
                 put_logo();
+                /** put menu options */
                 put_str(NTADR_A(11,16), jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS);
                 put_str(NTADR_A(11,17), jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS);
                 put_str(NTADR_A(11,18), jp? I18N_JP_3_PLAYERS: I18N_EN_3_PLAYERS);
                 put_str(NTADR_A(11,19), jp? I18N_JP_4_PLAYERS: I18N_EN_4_PLAYERS);
-                put_str(NTADR_A(3,26), I18N_EN_CREDITS_1);
-                put_str(NTADR_A(1,27), I18N_EN_CREDITS_2);
-
+                put_str(NTADR_A(3,25), I18N_EN_CREDITS_1);
+                put_str(NTADR_A(1,26), I18N_EN_CREDITS_2);
+                /** put menu option 'continue' */
                 if (roosters_count) {
                     put_str(NTADR_A(11,15), jp? I18N_JP_CONTINUE: I18N_EN_CONTINUE);
                 }
@@ -510,6 +520,8 @@ void main(void)
 
 			case FSM_DRAW_ARENA:
 				ppu_off();
+                pal_bg(paletteBackground);
+	            pal_spr(paletteSprite);
                 oam_clear();
 				put_all(' ');
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
@@ -526,7 +538,7 @@ void main(void)
                 /** select best seed by frame **/
                 /** !jp randomization adjustment to standardize US/JAP**/
                 seed = (seed + 1 + !jp) % sizeof(good_seeds);
-                pal_col(2, (16 << (seed >> 3)) + 7); /**< 17, 37 **/
+                pal_col(15, (16 << (seed >> 3)) + 7); /**< 17, 37 **/
 
                 /** switch between resume, singleplayers and multiplayer **/
                 if (gamepad_old[PLAYER_1] == 0 && gamepad[PLAYER_1] & PAD_UP) {
@@ -564,7 +576,8 @@ void main(void)
                 }
 
                 /** draw option **/
-                oam_spr((10 * 8) + (jp << 4), (15 * 8) + (s << 3), '>', 0, 0);
+                oam_spr((10 * 8), (15 * 8) + (s << 3), 0xCF, 0, 0);
+                oam_spr((20 * 8), (15 * 8) + (s << 3), 0xCF, 0, 4);
                 break;
 
             case FSM_GAMEPLAY:
@@ -700,10 +713,13 @@ void main(void)
                                 else if (j == r) {
                                     /** set ranking  **/
                                     player_score[r] = roosters_total;
-                                   
                                     /** noob */
                                     if (roosters_total == MAX_ENIMIES) {
                                         player_score[r] = DIGIT_NOOB;
+                                    }
+                                    /** podium */
+                                    if (roosters_total <= 3) {
+                                        player_score[r] = DIGIT_NOOB + roosters_total;
                                     }
                                 /** npc */
                                 } else {
