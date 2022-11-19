@@ -55,10 +55,10 @@
 /**
  *  SPRITES
  */
-#define SPR_EDGE                        0x6C
-#define SPR_LOGO                        0x60
+#define SPR_EDGE                        0xBF
+#define SPR_EDGE_1                      0xB9
+#define SPR_EDGE_2                      0xBC
 #define SPR_POINTER                     0x5C
-#define SPR_LOGO_JAP                    0xC0
 #define SPR_JP_HITO                     0x0C
 #define SPR_JP_O                        0x0D
 #define SPR_JP_N                        0x0E
@@ -270,28 +270,22 @@ void put_ret(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char
     j = x2 - x1;
 
     /** draw horizontal lines **/
-    vram_adr(NTADR_A(x1,y1));
-    vram_fill(SPR_EDGE + 0x40, j);
-    vram_adr(NTADR_A(x1,y2));
-    vram_fill(SPR_EDGE + 0x40, j);
-   
-    /** draw vertical lines **/
-    for (i = y1; i < y2; i++) {
-        vram_adr(NTADR_A(x1,i));
-        vram_put(SPR_EDGE + 0x50);
-        vram_adr(NTADR_A(x2,i));
-        vram_put(SPR_EDGE + 0x50);
+    for (j = x1 + 1; j < x2; ++j)
+    {
+        vram_adr(NTADR_A(j,y1));
+        vram_put(SPR_EDGE_1 + (j % 3));
+        vram_adr(NTADR_A(j,y2));
+        vram_put(SPR_EDGE_1 + (j % 3));
     }
-    
-    /** draw border edges **/
-    vram_adr(NTADR_A(x1, y1));
-    vram_put(SPR_EDGE);    
-    vram_adr(NTADR_A(x1,y2));
-    vram_put(SPR_EDGE + 0x10);
-    vram_adr(NTADR_A(x2,y1));
-    vram_put(SPR_EDGE + 0x20);
-    vram_adr(NTADR_A(x2,y2));
-    vram_put(SPR_EDGE + 0x30);
+
+    /** draw vertical lines **/
+    for (j = y1 + 1; j < y2; ++j)
+    {
+        vram_adr(NTADR_A(x1, j));
+        vram_put(SPR_EDGE_2 + (j % 3));
+        vram_adr(NTADR_A(x2, j));
+        vram_put(SPR_EDGE_2 + (j % 3));
+    }
 }
 
 void put_logo()
@@ -320,6 +314,9 @@ void put_score()
         vram_put(digit_lockup[1][s]);
         vram_put(digit_lockup[0][s]);
     }
+    
+    vram_adr(ATADR_A(0, 1));
+    vram_fill(BR_BL_TR_TL(0,0,3,3), 8);
 }
 
 void spawn_cocks()
@@ -552,8 +549,6 @@ void main(void)
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
 				put_str(NTADR_A(0,28), I18N_EN_GAMEPLAY_NAME);
 				put_str(NTADR_A(26,1), "\x10  /20");
-                vram_adr(ATADR_A(0, 1));
-                vram_fill(BR_BL_TR_TL(0,2,2,0), 8*8);
                 put_score();
                 gamestate = FSM_GAMEPLAY;
 				ppu_on_all();
@@ -600,9 +595,15 @@ void main(void)
                     }
                 }
 
-                /** draw option **/
-                oam_spr((10 * 8), (15 * 8) + (s << 3), 0xCF, 0, 0);
-                oam_spr((20 * 8), (15 * 8) + (s << 3), 0xCF, 0, 4);
+                /** draw option 6, 3, 23, 9 **/
+                spr = 0;
+                spr = oam_spr((10 * 8), (15 * 8) + (s << 3), 0xCF, 0, spr);
+                spr = oam_spr((20 * 8), (15 * 8) + (s << 3), 0xCF, 0, spr);
+                /* put ret edges **/
+                spr = oam_spr((6 * 8), (3 * 8) - 1, SPR_EDGE, 0xC0, spr);
+                spr = oam_spr((24 * 8), (3 * 8) - 1, SPR_EDGE, 0x80, spr);
+                spr = oam_spr((6 * 8), (10 * 8) - 1, SPR_EDGE, 0x40, spr);
+                spr = oam_spr((24 * 8), (10 * 8) - 1, SPR_EDGE, 0x00, spr);
                 break;
 
             case FSM_GAMEPLAY:
@@ -775,6 +776,13 @@ void main(void)
                 spr = oam_spr((27 * 8), (1 * 8) -1, digit_lockup[1][roosters_count], 0, spr);
                 spr = oam_spr((28 * 8), (1 * 8) -1, digit_lockup[0][roosters_count], 0, spr);
 
+                /* put ret edges **/
+                spr = oam_spr(MIN_ARENA_X - 6, MIN_ARENA_Y - 7, SPR_EDGE, 0xC0, spr);
+                spr = oam_spr(MAX_ARENA_X + 6, MIN_ARENA_Y - 7, SPR_EDGE, 0x80, spr);
+                spr = oam_spr(MIN_ARENA_X - 6, MAX_ARENA_Y + 7, SPR_EDGE, 0x40, spr);
+                spr = oam_spr(MAX_ARENA_X + 6, MAX_ARENA_Y + 7, SPR_EDGE, 0x00, spr);
+
+                /* end draw */
                 oam_hide_rest(spr);
                 break;
 
