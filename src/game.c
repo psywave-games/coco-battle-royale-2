@@ -477,12 +477,12 @@ void main(void)
 		
 		switch (gamestate) {
             case FSM_MUSIC_MENU:
-                music_play(0);
+                //music_play(0);
 				gamestate = FSM_DRAW_MENU;
                 break;
 
             case FSM_MUSIC_ARENA:
-                music_play(1);
+                //music_play(1);
 				gamestate = FSM_RESTART;
                 break;
 
@@ -706,6 +706,7 @@ void main(void)
                                 }
 
                                 /** flash screen & put score */
+                                sample_play(37);
                                 pal_col(0,0x30);
                                 ppu_off();
                                 put_score();

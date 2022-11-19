@@ -36,11 +36,11 @@ $(CC):
 	$(EMULATOR) $<
 
 clean:
-	@rm -fv $(TARGETS)
-	@rm -fv $(OBJECTS)
-	@rm -fv $(ASSEMBLY_SOURCES)
-	@rm -fv *.zip
-	@rm -fv asm/crt0.o
+	@rm -f $(TARGETS)
+	@rm -f $(OBJECTS)
+	@rm -f $(ASSEMBLY_SOURCES)
+	@rm -f *.zip
+	@rm -f asm/crt0.o
 
 %.s: %.c
 	$(CC) -Oi $< --target $(TARGET_PLATFORM) -I$(CC65_DIR)/include/ --add-source
