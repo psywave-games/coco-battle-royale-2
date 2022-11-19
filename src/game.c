@@ -51,24 +51,22 @@
 #define CLAMP(v,min,max)                (MIN(max,MAX(min,v)))
 #define DISTANCE(a,b)                   (a>b?a-b:b-a)
 #define DISTANCE2D(a1,a2,b1,b2)         ((int)DISTANCE(a1,a2)+DISTANCE(b1,b2))
-#define vram_adr_put(x,y,s)             {vram_adr(NTADR_A(x,y));vram_put(s);}
 
 /**
  *  SPRITES
  */
 #define SPR_EDGE                        0x6C
 #define SPR_LOGO                        0x60
-#define SPR_BONE                        0x6D
 #define SPR_POINTER                     0x5C
 #define SPR_LOGO_JAP                    0xC0
-#define SPR_JP_HITO                     0xAE
-#define SPR_JP_O                        0xBE
-#define SPR_JP_N                        0xCE
-#define SPR_JP_DO                       0xDE
-#define SPR_JP_RI                       0xEE
-#define SPR_JP_TSU                      0xFE
-#define SPR_JP_DZU                      0xAF
-#define SPR_JP_KU                       0xBF
+#define SPR_JP_HITO                     0x0C
+#define SPR_JP_O                        0x0D
+#define SPR_JP_N                        0x0E
+#define SPR_JP_DO                       0x0F
+#define SPR_JP_RI                       0x1C
+#define SPR_JP_TSU                      0x1D
+#define SPR_JP_DZU                      0x1E
+#define SPR_JP_KU                       0x1F
 
 /**
  * TYPES
@@ -139,29 +137,29 @@ const char I18N_EN_RESTART_COIN[] = "INSERT (COIN) FOR NEW BATTLE!!  ";
 const char I18N_EN_GAMEPLAY_NAME[] = "      COCO BATTLE ROYALE II      ";
 
 const char I18N_EN_LOGO[] = {
-    0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x20, 0x20, 0x20, 0x6D, 0x6E, 0x6F, 0x6D, 0x6E, 0x6F,
-    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x20, 0x20, 0x20, 0x7D, 0x7E, 0x7F, 0x7D, 0x7E, 0x7F,
-    0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x20, 0x20, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
-    0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x20, 0x20, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
-    0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0x8E, 0x8F, 0x8D, 0x8E, 0x8F,
-    0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0x9E, 0x9F, 0x9D, 0x9E, 0x9F
+    0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x62, 0x63, 0x20, 0x20, 0x20, 0x66, 0x67, 0x68, 0x66, 0x67, 0x68,
+    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x72, 0x73, 0x20, 0x20, 0x20, 0x76, 0x77, 0x78, 0x76, 0x77, 0x78,
+    0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0xA6, 0xA7, 0xA8, 0x20, 0x20, 0x87, 0x88, 0x20, 0x87, 0x88,
+    0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0xB6, 0xB7, 0xB8, 0x20, 0x20, 0x87, 0x88, 0x20, 0x87, 0x88,
+    0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0x82, 0x83, 0xA6, 0xA7, 0xA8, 0xA9, 0x87, 0x88, 0x20, 0x87, 0x88,
+    0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0x92, 0x93, 0xB6, 0xB7, 0xB8, 0xB9, 0x97, 0x98, 0x20, 0x97, 0x98
 };
 
 const char jp = FAMICON_VERSION;
 const char I18N_JP_CONTINUE[] = {
-    ' ', ' ', ' ', SPR_JP_TSU, SPR_JP_DZU, SPR_JP_KU, ' ', ' ', 0
+    ' ', ' ', ' ', SPR_JP_TSU, SPR_JP_DZU, SPR_JP_KU, ' ', ' ', ' '
 };
 const char I18N_JP_1_PLAYERS[] = {
-    ' ', '1',  SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+    ' ', '1',  SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, ' '
 };
 const char I18N_JP_2_PLAYERS[] = {
-    ' ', '2', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+    ' ', '2', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, ' '
 };
 const char I18N_JP_3_PLAYERS[] = {
-    ' ', '3', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+    ' ', '3', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, ' '
 };
 const char I18N_JP_4_PLAYERS[] = {
-    ' ', '4', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, 0
+    ' ', '4', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, ' '
 };
 
 const char I18N_JP_LOGO[] = {
@@ -525,15 +523,21 @@ void main(void)
                 /** game title */
                 put_logo();
                 /** put menu options */
-                put_str(NTADR_A(11,16), jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS);
-                put_str(NTADR_A(11,17), jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS);
-                put_str(NTADR_A(11,18), jp? I18N_JP_3_PLAYERS: I18N_EN_3_PLAYERS);
-                put_str(NTADR_A(11,19), jp? I18N_JP_4_PLAYERS: I18N_EN_4_PLAYERS);
+                vram_adr(NTADR_A(11,16));
+                vram_write(jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS, 9);
+                vram_adr(NTADR_A(11,17));
+                vram_write(jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS, 9);
+                vram_adr(NTADR_A(11,18));
+                vram_write(jp? I18N_JP_3_PLAYERS: I18N_EN_3_PLAYERS, 9);
+                vram_adr(NTADR_A(11,19));
+                vram_write(jp? I18N_JP_4_PLAYERS: I18N_EN_4_PLAYERS, 9);
+                /** put copyright */
                 put_str(NTADR_A(3,25), I18N_EN_CREDITS_1);
                 put_str(NTADR_A(1,26), I18N_EN_CREDITS_2);
                 /** put menu option 'continue' */
                 if (roosters_count) {
-                    put_str(NTADR_A(11,15), jp? I18N_JP_CONTINUE: I18N_EN_CONTINUE);
+                    vram_adr(NTADR_A(11,15));
+                    vram_write(jp? I18N_JP_CONTINUE: I18N_EN_CONTINUE, 9);
                 }
 				ppu_on_all();
 				gamestate = FSM_MENU;
