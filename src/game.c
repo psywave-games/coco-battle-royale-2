@@ -239,8 +239,27 @@ void put_all(const char c)
 
 void put_str(unsigned int adr,const char *str)
 {
+    unsigned char fixed_x = (adr & 0x1f);
     vram_adr(adr);
-	for (;*str != NULL; vram_put(*str), str++);
+    for (;*str != '\0'; ++str) {
+        /** line feed */
+        if (*str == '\n') {
+            /** y + 1*/ 
+            adr += 32;
+            vram_adr(adr);
+            continue;
+        }
+        /** carrier return */
+        if (*str == '\r') {
+            /** x = fixed_x */  
+            adr = fixed_x | (adr & 0xffe0);
+            vram_adr(adr);
+            continue;
+        }
+        /** print */
+        vram_put(*str);
+        ++adr;
+    }
 }
 
 void put_ret(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char y2)
