@@ -235,6 +235,12 @@ static unsigned int big1, big2;
 static unsigned char i,j,l,r;
 static unsigned char spr;
 
+/** ANIMATION VARIABLE */
+static unsigned char step_1;
+static unsigned char step_2;
+static unsigned char step_3;
+static unsigned char step_4;
+
 /*
  * UTILS
  */
@@ -301,8 +307,6 @@ void put_logo()
         vram_adr(NTADR_A(7, 4 + i));
         vram_write((unsigned char *) (jp? I18N_JP_LOGO: I18N_EN_LOGO) + (i*17), 17);
     }
-
-    put_ret(6, 3, 23, 9);
 }
 
 void put_score()
@@ -519,15 +523,22 @@ void main(void)
                 vram_adr(ATADR_A(0, 1));
                 vram_fill(BR_BL_TR_TL(0,0,0,0), 3*8);
                 vram_fill(BR_BL_TR_TL(2,2,2,2), 5*8);
-                /** colorize 2 in JAP version*/
+                /** colorize logo */
+                vram_adr(ATADR_A(7,7));
+                vram_put(BR_BL_TR_TL(2,0,2,0));
+                vram_adr(ATADR_A(7,9));
+                vram_put(BR_BL_TR_TL(0,0,2,0));
+                vram_adr(ATADR_A(8,7));
+                vram_fill(BR_BL_TR_TL(2,2,2,2), 4);
+                vram_adr(ATADR_A(8,8));
+                vram_fill(BR_BL_TR_TL(0,0,2,2), 4);
                 vram_adr(ATADR_A(18,6));
-                vram_put(BR_BL_TR_TL(1,1,0,0));
-                vram_adr(ATADR_A(10,8));
-                vram_fill(BR_BL_TR_TL(0,0,2,2), 3);
+                vram_put(BR_BL_TR_TL(1,1,2,2));
                 /** colorize link */
                 vram_adr(ATADR_A(1,26));
                 vram_fill(BR_BL_TR_TL(1,1,2,2), 30);
                 /** game title */
+                put_ret(5, 3, 25, 9);
                 put_logo();
                 /** put menu options */
                 vram_adr(NTADR_A(11,16));
@@ -610,10 +621,27 @@ void main(void)
                 spr = oam_spr((10 * 8), (15 * 8) + (s << 3), 0xCF, 0, spr);
                 spr = oam_spr((20 * 8), (15 * 8) + (s << 3), 0xCF, 0, spr);
                 /* put ret edges **/
-                spr = oam_spr((6 * 8), (3 * 8) - 1, SPR_EDGE, 0xC0, spr);
-                spr = oam_spr((24 * 8), (3 * 8) - 1, SPR_EDGE, 0x80, spr);
-                spr = oam_spr((6 * 8), (10 * 8) - 1, SPR_EDGE, 0x40, spr);
-                spr = oam_spr((24 * 8), (10 * 8) - 1, SPR_EDGE, 0x00, spr);
+                spr = oam_spr((5 * 8), (3 * 8) - 1, SPR_EDGE, 0xC0, spr);
+                spr = oam_spr((26 * 8), (3 * 8) - 1, SPR_EDGE, 0x80, spr);
+                spr = oam_spr((5 * 8), (10 * 8) - 1, SPR_EDGE, 0x40, spr);
+                spr = oam_spr((26 * 8), (10 * 8) - 1, SPR_EDGE, 0x00, spr);
+                /** animate logo*/
+                if (roosters_count == 0) {
+                    if (step_1 < 60) {
+                        ++step_1;
+                    } else if (step_2 < 7) {
+                        step_1 = 1;
+                        ++step_2;
+                    } else {
+                        static const unsigned colors[] = {0x30, 0x29, 0x21, 0x30, 0x29};
+                        pal_col(1, colors[0 + step_4]);
+                        pal_col(2, colors[1 + step_4]);
+                        pal_col(3, colors[2 + step_4]);
+                        pal_col(17, colors[2 + step_4]);
+                        step_4 = (step_3>>3) % 3;
+                        ++step_3;
+                    }
+                }
                 break;
 
             case FSM_GAMEPLAY:
