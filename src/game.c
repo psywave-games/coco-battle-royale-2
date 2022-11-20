@@ -187,6 +187,13 @@ static const unsigned char good_seeds[] = {
     SEED_PACK(451), SEED_PACK(507)
 };
 
+
+const char paletteBackgroundMenu[] = {
+    0x0f, 0x30, 0x30, 0x30,
+    0x0f, 0x30, 0x0f, 0x30,
+    0x0f, 0x30, 0x0f, 0x0f
+};
+
 const char paletteBackground[] = {
 	0x0f,0x30,0x27,0x0f,
 	0x0f,0x0f,0x0f,0x0f,
@@ -474,7 +481,6 @@ void ia_process(unsigned char npc)
 
 void main(void)
 {
-    pal_bg(paletteBackground);
 	pal_spr(paletteSprite);
 
 	/** game loop **/
@@ -505,18 +511,22 @@ void main(void)
 
             case FSM_DRAW_MENU:
                 ppu_off();
+                pal_bg(paletteBackgroundMenu);
                 oam_clear();
                 /** reset nametable */
 				put_all(' ');
                 /** reset attribute table*/
                 vram_adr(ATADR_A(0, 1));
-                vram_fill(0, 8*8);
+                vram_fill(BR_BL_TR_TL(0,0,0,0), 3*8);
+                vram_fill(BR_BL_TR_TL(2,2,2,2), 5*8);
                 /** colorize 2 in JAP version*/
                 vram_adr(ATADR_A(18,6));
-                vram_put(BR_BL_TR_TL(3,0,0,0));
+                vram_put(BR_BL_TR_TL(1,1,0,0));
+                vram_adr(ATADR_A(10,8));
+                vram_fill(BR_BL_TR_TL(0,0,2,2), 3);
                 /** colorize link */
                 vram_adr(ATADR_A(1,26));
-                vram_fill(BR_BL_TR_TL(3,3,0,0), 30);
+                vram_fill(BR_BL_TR_TL(1,1,2,2), 30);
                 /** game title */
                 put_logo();
                 /** put menu options */
@@ -558,7 +568,7 @@ void main(void)
                 /** select best seed by frame **/
                 /** !jp randomization adjustment to standardize US/JAP**/
                 seed = (seed + 1 + !jp) % sizeof(good_seeds);
-                pal_col(15, (16 << (seed >> 3)) + 7); /**< 17, 37 **/
+                pal_col(7, (16 << (seed >> 3)) + 7); /**< 17, 37 **/
 
                 /** switch between resume, singleplayers and multiplayer **/
                 if (gamepad_old[PLAYER_1] == 0 && gamepad[PLAYER_1] & PAD_UP) {
