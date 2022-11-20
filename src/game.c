@@ -195,9 +195,10 @@ const char paletteBackgroundMenu[] = {
 };
 
 const char paletteBackground[] = {
-	0x0f,0x30,0x27,0x0f,
-	0x0f,0x0f,0x0f,0x0f,
-	0x0f,0x27,0x30,0x0f
+    0x0f, 0x30, 0x30, 0x30,
+    0x0f, 0x30, 0x30, 0x30,
+    0x0f, 0x30, 0x30, 0x30,
+	0x0f, 0x27, 0x30, 0x0f
 };
 
 const char paletteSprite[] = {
@@ -325,9 +326,6 @@ void put_score()
         vram_put(digit_lockup[1][s]);
         vram_put(digit_lockup[0][s]);
     }
-    
-    vram_adr(ATADR_A(0, 1));
-    vram_fill(BR_BL_TR_TL(0,0,3,3), 8);
 }
 
 void spawn_cocks()
@@ -563,12 +561,29 @@ void main(void)
 
 			case FSM_DRAW_ARENA:
 				ppu_off();
+                oam_clear();
                 pal_bg(paletteBackground);
 	            pal_spr(paletteSprite);
-                oam_clear();
-				put_all(' ');
+				/** reset nametable */
+                put_all(' ');
+                /** reset attribute table*/
+                vram_adr(ATADR_A(0, 1));
+                vram_fill(BR_BL_TR_TL(3,3,3,3), 8*8);
+                /** put borders */
                 put_ret(MIN_ARENA_X/8, MIN_ARENA_Y/8, MAX_ARENA_X/8, MAX_ARENA_Y/8);
-				put_str(NTADR_A(0,28), I18N_EN_GAMEPLAY_NAME);
+                vram_adr(ATADR_A(0, 1));
+                vram_fill(BR_BL_TR_TL(0,0,3,3), 8);
+                vram_adr(ATADR_A(0, 27));
+                vram_fill(BR_BL_TR_TL(0,0,2,1), 8);
+                for (i = 5; i < 25; i += 2) {
+                    vram_adr(ATADR_A(0, i));
+                    vram_put(BR_BL_TR_TL(3,1,3,1));
+                    vram_adr(ATADR_A(30, i));
+                    vram_put(BR_BL_TR_TL(2,3,2,3));
+                }
+                /* put footer */
+                put_str(NTADR_A(0,28), I18N_EN_GAMEPLAY_NAME);
+                /* put header */
 				put_str(NTADR_A(26,1), "\x10  /20");
                 put_score();
                 gamestate = FSM_GAMEPLAY;
@@ -811,8 +826,8 @@ void main(void)
 
                 /** draw number of coocks **/
                 roosters_total = roosters_count;
-                spr = oam_spr((27 * 8), (1 * 8) -1, digit_lockup[1][roosters_count], 0, spr);
-                spr = oam_spr((28 * 8), (1 * 8) -1, digit_lockup[0][roosters_count], 0, spr);
+                spr = oam_spr((27 * 8), (1 * 8) -1, digit_lockup[1][roosters_count], 3, spr);
+                spr = oam_spr((28 * 8), (1 * 8) -1, digit_lockup[0][roosters_count], 3, spr);
 
                 /* put ret edges **/
                 spr = oam_spr(MIN_ARENA_X - 6, MIN_ARENA_Y - 7, SPR_EDGE, 0xC0, spr);
