@@ -305,7 +305,7 @@ void put_logo()
 {
     for (i = 0; i < 6; i++){
         vram_adr(NTADR_A(7, 4 + i));
-        vram_write((unsigned char *) (jp? I18N_JP_LOGO: I18N_EN_LOGO) + (i*17), 17);
+        vram_write((jp? I18N_JP_LOGO: I18N_EN_LOGO) + (i*17), 17);
     }
 }
 

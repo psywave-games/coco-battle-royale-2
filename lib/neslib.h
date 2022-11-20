@@ -228,7 +228,7 @@ void __fastcall__ vram_read(unsigned char *dst,unsigned int size);
 
 //write a block to current address of vram, works only when rendering is turned off
 
-void __fastcall__ vram_write(unsigned char *src,unsigned int size);
+void __fastcall__ vram_write(const char* src,unsigned int size);
 
 
 //unpack RLE data to current address of vram, mostly used for nametables
