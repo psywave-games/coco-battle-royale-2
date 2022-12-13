@@ -61,7 +61,7 @@ void put_borders()
     vram_adr(ATADR_A(0, 1));
     vram_fill(BR_BL_TR_TL(0,0,3,3), 8);
     vram_adr(ATADR_A(0, 27));
-    vram_fill(BR_BL_TR_TL(0,0,2,1), 8);
+    vram_fill(BR_BL_TR_TL(0,0,1,1), 8);
     for (i = 5; i < 25; i += 2) {
         vram_adr(ATADR_A(0, i));
         vram_put(BR_BL_TR_TL(3,1,3,1));
@@ -78,12 +78,10 @@ void put_logo()
     }
 }
 
-void put_score()
+void put_rank()
 {
-    /** show scores */
     for (l = 0; l < MAX_PLAYERS; ++l) {
         s = player_rank[l];
-        vram_adr(NTADR_A(l << 2, 1));
         if (l < joysticks) {
             vram_put(0x5c + l);
             vram_put('P');
@@ -93,6 +91,26 @@ void put_score()
         }
         vram_put(digit_lockup[1][s]);
         vram_put(digit_lockup[0][s]);
+    }
+}
+
+void put_score()
+{
+    for (l = 0; l < MAX_PLAYERS; ++l) {
+        s = player_score[l];
+        if (l < joysticks) {
+            vram_put(0x5c + l);
+            vram_put('P');
+        } else {
+            vram_put(' ');
+            vram_put(' ');
+        }
+        if (s) {
+            vram_put(digit_lockup[1][s]);
+            vram_put(digit_lockup[0][s]);
+        } else {
+            vram_write("00", 2);
+        }
     }
 }
 
@@ -161,8 +179,9 @@ void draw_arena()
     /* put footer */
     put_str(NTADR_A(0,28), I18N_EN_GAMEPLAY_NAME);
     /* put header */
+    vram_adr(NTADR_A(0, 1));
+    put_rank();  
     put_str(NTADR_A(26,1), "\x10  /20");
-    put_score();
     gamestate = FSM_GAMEPLAY;
     ppu_on_all();
 }
@@ -171,25 +190,21 @@ void draw_celebration()
 {
     ppu_off();
     oam_clear();
+    pal_bg(paletteBackground);
+    pal_spr(paletteSprite);
     put_all(' ');
     put_borders();
-    put_score();
-    big1 = NTADR_A(7, 19);
-    /** print scores */
-    for (i = 0; i < MAX_PLAYERS; ++i) {
-        s = player_score[i];
-        if (!s) {
-            continue;
-        }
-        vram_adr(big1);
-        vram_write(I18N_EN_1_PLAYERS + (i * 10), 8);
-        vram_write(I18N_EN_SCORE, sizeof(I18N_EN_SCORE) - 1);
-        vram_put(digit_lockup[1][s]);
-        vram_put(digit_lockup[0][s]);
-        big1 += 32;
-    }
+
+    /** print scoreboards **/
+    put_str(NTADR_A(1, 1), "RANK: ");
+    put_str(NTADR_A(1, 28), "KILLS:");
+    vram_adr(NTADR_A(31 - (joysticks * 4), 1));
+    put_rank();
+    vram_adr(NTADR_A(31 - (joysticks * 4), 28));
+    put_score();  
+
     /** print rank */
-    if (player_score[i] == DIGIT_WINNER) {
+    if (player_rank[i] == DIGIT_WINNER) {
         put_str(NTADR_A(12, 4), I18N_EN_WINNER);
     }
 
