@@ -174,17 +174,25 @@ void draw_celebration()
     put_all(' ');
     put_borders();
     put_score();
+    big1 = NTADR_A(7, 19);
+    /** print scores */
     for (i = 0; i < MAX_PLAYERS; ++i) {
         s = player_score[i];
         if (!s) {
             continue;
         }
-        vram_adr(NTADR_A(7, 19 + i));
+        vram_adr(big1);
         vram_write(I18N_EN_1_PLAYERS + (i * 10), 8);
         vram_write(I18N_EN_SCORE, sizeof(I18N_EN_SCORE) - 1);
         vram_put(digit_lockup[1][s]);
         vram_put(digit_lockup[0][s]);
+        big1 += 32;
     }
+    /** print rank */
+    if (player_score[i] == DIGIT_WINNER) {
+        put_str(NTADR_A(12, 4), I18N_EN_WINNER);
+    }
+
     gamestate = FSM_CELEBRATION;
     ppu_on_all();
 }
