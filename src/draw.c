@@ -80,31 +80,22 @@ void put_logo()
 
 void put_rank()
 {
-    for (l = 0; l < MAX_PLAYERS; ++l) {
+    for (l = 0; l < joysticks; ++l) {
         s = player_rank[l];
-        if (l < joysticks) {
-            vram_put(0x5c + l);
-            vram_put('P');
-        } else {
-            vram_put(' ');
-            vram_put(' ');
-        }
+        vram_put(0x5c + l);
+        vram_put('P');
         vram_put(digit_lockup[1][s]);
         vram_put(digit_lockup[0][s]);
+        
     }
 }
 
 void put_score()
 {
-    for (l = 0; l < MAX_PLAYERS; ++l) {
+    for (l = 0; l < joysticks; ++l) {
         s = player_score[l];
-        if (l < joysticks) {
-            vram_put(0x5c + l);
-            vram_put('P');
-        } else {
-            vram_put(' ');
-            vram_put(' ');
-        }
+        vram_put(0x5c + l);
+        vram_put('P');
         if (s) {
             vram_put(digit_lockup[1][s]);
             vram_put(digit_lockup[0][s]);

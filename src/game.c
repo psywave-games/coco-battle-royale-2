@@ -93,6 +93,7 @@ void main(void)
 
             case FSM_DRAW_CELEBRATION:
 				draw_celebration();
+                gamestate = FSM_CELEBRATION;
                 break;
 
             case FSM_MENU:
@@ -160,6 +161,15 @@ void main(void)
                         pal_col(17, colors[2 + step_4]);
                         step_4 = (step_3>>3) % 3;
                         ++step_3;
+                    }
+                }
+                break;
+
+            case FSM_CELEBRATION:
+                if (gamepad_old[PLAYER_1] == 0) {
+                    /** restart game **/
+                    if ((gamepad[PLAYER_1] & PAD_START)) {
+                        gamestate = FSM_RESTART;
                     }
                 }
                 break;
