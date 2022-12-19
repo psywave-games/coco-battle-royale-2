@@ -62,6 +62,7 @@ void main(void)
 	{
 		/** reset sprite count **/
 		spr = 0;
+        ++framecount_seed;
 
 		/** wait for next frame**/
 		ppu_wait_nmi();
@@ -369,6 +370,7 @@ void main(void)
                 gamestate = FSM_DRAW_ARENA;
                 roosters_total = 0;
                 spawn_cocks();
+                set_rand((~(framecount_seed << 8) | (framecount_seed >> 8)) + (gamepad[0] + (step_1 << step_2)));
                 break;
 		}
 	}

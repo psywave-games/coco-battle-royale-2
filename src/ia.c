@@ -1,4 +1,3 @@
-
 void ia_hunter_cycle()
 {
     /** verify cycle is completed **/
@@ -92,25 +91,29 @@ void ia_process(unsigned char npc)
             break;
     
         default:
-            j = rand8();
             if (roosters_total == 1) {
                 npcs[npc].state = FSM_WINNER;
             }
-            else if (j < 30) {
+            else if (j < 60) {
                 npcs[npc].state = FSM_HUNTER_WAIT;
             }
-            else if (j < 60) {
-                npcs[npc].input ^= (rand8() + npc + j) & (PAD_LEFT | PAD_RIGHT);
-                // fixed ambiguous input on axis x
-                if (npcs[npc].input & PAD_LEFT && npcs[npc].input & PAD_RIGHT) {
-                    npcs[npc].input ^= (PAD_LEFT | PAD_RIGHT);
+            else 
+            {
+                case FSM_HUNTER_WAIT:
+                j = rand8();
+                if (j < 90) {
+                    npcs[npc].input ^= (rand8() + npc + j) & (PAD_LEFT | PAD_RIGHT);
+                    // fixed ambiguous input on axis x
+                    if (npcs[npc].input & PAD_LEFT && npcs[npc].input & PAD_RIGHT) {
+                        npcs[npc].input ^= (PAD_LEFT | PAD_RIGHT);
+                    }
                 }
-            }
-            else if (j < 90) {
-                npcs[npc].input ^= (rand8() + npc + j) & (PAD_DOWN | PAD_UP);
-                // fixed ambiguous input on axis x
-                if (npcs[npc].input & PAD_DOWN && npcs[npc].input & PAD_UP) {
-                    npcs[npc].input ^= (PAD_DOWN | PAD_UP);
+                else if (j < 120) {
+                    npcs[npc].input ^= (rand8() + npc + j) & (PAD_DOWN | PAD_UP);
+                    // fixed ambiguous input on axis x
+                    if (npcs[npc].input & PAD_DOWN && npcs[npc].input & PAD_UP) {
+                        npcs[npc].input ^= (PAD_DOWN | PAD_UP);
+                    }
                 }
             }
             break;

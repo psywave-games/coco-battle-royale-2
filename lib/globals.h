@@ -1,7 +1,7 @@
 /**
  * @todo: refact this cheat.
  */
-#define MAX_ENIMIES                     (4)
+#define MAX_ENIMIES                     (20)
 #define MAX_PLAYERS                     (4)
 #define SPEED                           (1)
 #define MIN_ARENA_X                     (6)
@@ -143,6 +143,7 @@ const char digit_lockup[2][] = {
 /** GLOBAL VARIABLES **/
 static struct npc_ia_s npcs[MAX_ENIMIES];       /** IA controll **/
 static struct framecount_s framecount;          /** IA manager groups **/
+static unsigned int framecount_seed;             /** IA Behavior seed**/
 static struct coco_s players[MAX_ENIMIES];		/** all cocks entitys **/
 static enum fsm_game_e gamestate;	            /** finite state machine **/
 static unsigned char seed;						/** randomness control **/
