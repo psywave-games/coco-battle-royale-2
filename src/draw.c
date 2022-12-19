@@ -86,7 +86,6 @@ void put_rank()
         vram_put('P');
         vram_put(digit_lockup[1][s]);
         vram_put(digit_lockup[0][s]);
-        
     }
 }
 
@@ -195,8 +194,20 @@ void draw_celebration()
     put_score();  
 
     /** print rank */
-    if (player_rank[i] == DIGIT_WINNER) {
+    for (l = 0x7f, i = 0; i < joysticks; ++i)
+    {
+        if (player_rank[i] < l) {
+            l = player_rank[i];
+        }
+    }
+    
+    if (l <= 1) {
         put_str(NTADR_A(12, 4), I18N_EN_WINNER);
+    } else {
+        put_str(NTADR_A(12, 4), I18N_EN_LOOSER);
+        vram_adr(NTADR_A(13, 4));
+        vram_put(digit_lockup[1][l]);
+        vram_put(digit_lockup[0][l]);
     }
 
     gamestate = FSM_CELEBRATION;
