@@ -84,6 +84,12 @@ void put_rank()
         s = player_rank[l];
         vram_put(0x5c + l);
         vram_put('P');
+        if (s && s <= 3) {
+            s += DIGIT_NOOB;
+        }
+        else if (s == MAX_ENIMIES) {
+            s = DIGIT_NOOB;
+        }
         vram_put(digit_lockup[1][s]);
         vram_put(digit_lockup[0][s]);
     }

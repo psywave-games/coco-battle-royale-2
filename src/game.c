@@ -305,21 +305,13 @@ void main(void)
                                     ++player_score[i];
                                     /** winner */
                                     if (roosters_total <= 2) {
-                                        player_rank[r] = DIGIT_WINNER;
+                                        player_rank[r] = 1;
                                     }
                                 }
                                 /** looser */
                                 else if (j == r) {
                                     /** set ranking  **/
                                     player_rank[r] = roosters_total;
-                                    /** noob */
-                                    if (roosters_total == MAX_ENIMIES) {
-                                        player_rank[r] = DIGIT_NOOB;
-                                    }
-                                    /** podium */
-                                    if (roosters_total <= 3) {
-                                        player_rank[r] = DIGIT_NOOB + roosters_total;
-                                    }
                                 /** npc */
                                 } else {
                                     continue;
@@ -328,7 +320,8 @@ void main(void)
                                 /** flash screen & put score */
                                 pal_col(0,0x30);
                                 ppu_off();
-                                put_score();
+                                vram_adr(NTADR_A(0, 1));
+                                put_rank();
                                 ppu_on_all();
                                 pal_col(0, paletteBackground[0]);
                             }
