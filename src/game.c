@@ -140,8 +140,8 @@ void main(void)
 
                 /** draw option 6, 3, 23, 9 **/
                 spr = 0;
-                spr = oam_spr((10 * 8), (15 * 8) + (s << 3), 0xCF, 0, spr);
-                spr = oam_spr((20 * 8), (15 * 8) + (s << 3), 0xCF, 0, spr);
+                spr = oam_spr((10 * 8), (15 * 8) + (s << 3), 0xFC, 0, spr);
+                spr = oam_spr((20 * 8), (15 * 8) + (s << 3), 0xFC, 0, spr);
                 /* put ret edges **/
                 spr = oam_spr((5 * 8), (3 * 8) - 1, SPR_EDGE, 0xC0, spr);
                 spr = oam_spr((26 * 8), (3 * 8) - 1, SPR_EDGE, 0x80, spr);

@@ -131,7 +131,8 @@ void draw_menu()
     vram_adr(ATADR_A(8,8));
     vram_fill(BR_BL_TR_TL(0,0,2,2), 4);
     vram_adr(ATADR_A(18,6));
-    vram_put(BR_BL_TR_TL(1,1,2,2));
+    vram_put(BR_BL_TR_TL(1,2,2,2));
+    vram_put(BR_BL_TR_TL(2,1,2,2));
     /** colorize link */
     vram_adr(ATADR_A(1,26));
     vram_fill(BR_BL_TR_TL(1,1,2,2), 30);

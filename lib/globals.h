@@ -36,10 +36,10 @@
 /**
  *  SPRITES
  */
-#define SPR_EDGE                        0xBF
+#define SPR_EDGE                        0xD7
 #define SPR_EDGE_1                      0xB9
-#define SPR_EDGE_2                      0xBC
-#define SPR_POINTER                     0x5C
+#define SPR_EDGE_2                      0xCD
+#define SPR_POINTER                     0xBC
 
 /**
  * TYPES
