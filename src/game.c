@@ -62,6 +62,17 @@ void main(void)
 {
 	pal_spr(paletteSprite);
 
+    /** NTSC **/
+    if (ppu_system()) {
+        second = 60;
+        speed = 2;
+    }
+    /** PAL **/
+    else {
+        second = 50;
+        speed = 3;
+    }
+
 	/** game loop **/
 	for (;;)
 	{
@@ -107,7 +118,7 @@ void main(void)
                 break;
 
             case FSM_COUNT:
-                if (++step_1 > 60) {
+                if (++step_1 > second) {
                     sfx_play(2, 1);
                     step_1 = 0;
                     --step_2;
@@ -190,7 +201,7 @@ void main(void)
                 spr = oam_spr((26 * 8), (10 * 8) - 1, SPR_EDGE, 0x00, spr);
                 /** animate logo*/
                 if (roosters_count == 0) {
-                    if (step_1 < 60) {
+                    if (step_1 < second) {
                         ++step_1;
                     } else if (step_2 < 7) {
                         step_1 = 1;
@@ -249,20 +260,20 @@ void main(void)
                     /** player input **/
                     if (i < joysticks) {
                         if(gamepad[i] & PAD_LEFT) {
-                            players[i].x -= 1 << SPEED;
+                            players[i].x -= speed;
                             s = -1;
                         }
                         else if(gamepad[i] & PAD_RIGHT) {
-                            players[i].x += 1 << SPEED;
+                            players[i].x += speed;
                             s = 1;
                         } else {
                             s = 0;
                         }
                         if(gamepad[i] & PAD_UP) {
-                            players[i].y -= 1 << SPEED;
+                            players[i].y -= speed;
                         }
                         else if(gamepad[i] & PAD_DOWN) {
-                            players[i].y += 1 << SPEED;
+                            players[i].y += speed;
                         }
                         if ((gamepad[i] & (PAD_B | PAD_A)) && !(gamepad_old[i] & (PAD_B | PAD_A)) && players[i].framedata == 0) {
                             players[i].framedata = FRAME_PREPARE;
@@ -277,20 +288,20 @@ void main(void)
                     /** npc excute input **/
                     else {
                         if(npcs[i].input & PAD_LEFT) {
-                            players[i].x -= 1 << SPEED;
+                            players[i].x -= speed;
                             s = -1;
                         }
                         else if(npcs[i].input & PAD_RIGHT) {
-                            players[i].x += 1 << SPEED;
+                            players[i].x += speed;
                             s = 1;
                         } else {
                             s = 0;
                         }
                         if(npcs[i].input & PAD_UP) {
-                            players[i].y -= 1 << SPEED;
+                            players[i].y -= speed;
                         }
                         else if(npcs[i].input & PAD_DOWN) {
-                            players[i].y += 1 << SPEED;
+                            players[i].y += speed;
                         }
                         if (npcs[i].input & PAD_A) {
                             players[i].framedata = FRAME_PREPARE;

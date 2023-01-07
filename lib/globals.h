@@ -3,7 +3,7 @@
  */
 #define MAX_ENIMIES                     (20)
 #define MAX_PLAYERS                     (4)
-#define SPEED                           (1)
+#define SPEED                           (3)
 #define MIN_ARENA_X                     (6)
 #define MAX_ARENA_X                     (242)
 #define MID_ARENA_X                     ((MAX_ARENA_X/2)+MIN_ARENA_X)
@@ -150,6 +150,8 @@ static enum fsm_game_e gamestate;	            /** finite state machine **/
 static unsigned char seed;						/** randomness control **/
 static unsigned char roosters_count;            /** cocks counter **/
 static unsigned char roosters_total;            /** total of cocks arrive **/
+static unsigned char second;                    /** seconds by frame (NTSC/PAL)*/
+static unsigned char speed;                     /** player speed (NTSC/PAL)*/
 
 /** micromages 4 players **/
 static unsigned char joysticks = 1;				/** local multiplayer mode **/
