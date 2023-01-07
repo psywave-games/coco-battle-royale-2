@@ -82,7 +82,7 @@ void put_rank()
 {
     for (l = 0; l < joysticks; ++l) {
         s = player_rank[l];
-        vram_put(0x5c + l);
+        vram_put(SPR_POINTER + l);
         vram_put('P');
         if (s && s <= 3) {
             s += DIGIT_NOOB;
@@ -99,7 +99,7 @@ void put_score()
 {
     for (l = 0; l < joysticks; ++l) {
         s = player_score[l];
-        vram_put(0x5c + l);
+        vram_put(SPR_POINTER + l);
         vram_put('P');
         if (s) {
             vram_put(digit_lockup[1][s]);
