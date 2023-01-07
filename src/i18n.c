@@ -8,6 +8,7 @@
 #define SPR_JP_KU                       0x1F
 
 const char I18N_EN_SCORE[] = " SCORE: ";
+const char I18N_EN_COUNT[] = "STARTINGAT\xfa\xfa";
 const char I18N_EN_CONTINUE[] = "CONTINUE!";
 const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
 const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";

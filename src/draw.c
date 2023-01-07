@@ -95,6 +95,14 @@ void put_rank()
     }
 }
 
+void oam_edge()
+{
+    spr = oam_spr(MIN_ARENA_X - 6, MIN_ARENA_Y - 7, SPR_EDGE, 0xC0, spr);
+    spr = oam_spr(MAX_ARENA_X + 6, MIN_ARENA_Y - 7, SPR_EDGE, 0x80, spr);
+    spr = oam_spr(MIN_ARENA_X - 6, MAX_ARENA_Y + 7, SPR_EDGE, 0x40, spr);
+    spr = oam_spr(MAX_ARENA_X + 6, MAX_ARENA_Y + 7, SPR_EDGE, 0x00, spr);
+}
+
 void put_score()
 {
     for (l = 0; l < joysticks; ++l) {
@@ -179,7 +187,6 @@ void draw_arena()
     vram_adr(NTADR_A(0, 1));
     put_rank();  
     put_str(NTADR_A(26,1), "\x10  /20");
-    gamestate = FSM_GAMEPLAY;
     ppu_on_all();
 }
 

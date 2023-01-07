@@ -27,9 +27,14 @@ void spawn_cocks()
     }
     /** reset postions **/
 	for (i = 0; i < MAX_ENIMIES; i++)
-	{ 
-        if (i < joysticks) {
-            // random player positions
+	{
+        if (joysticks == 1 && i == 0){
+            // single player center
+            players[i].x = MID_ARENA_X;
+            players[i].y = MID_ARENA_Y;
+        }
+        else if (i < joysticks) {
+            // multi player positions
             players[i].x = MID_ARENA_X + (i&1? RANGE_ARENA/2: RANGE_ARENA/(-2));
             players[i].y = MID_ARENA_Y + (i&2? RANGE_ARENA/2: RANGE_ARENA/(-2));
         }
@@ -81,6 +86,7 @@ void main(void)
 
             case FSM_MUSIC_ARENA:
                 music_play(1);
+                music_pause(1);
 				gamestate = FSM_RESTART;
                 break;
 
@@ -90,11 +96,46 @@ void main(void)
 
 			case FSM_DRAW_ARENA:
 				draw_arena();
+                step_1 = 0;
+                step_2 = 5;
+                gamestate = FSM_COUNT;
 				break;
 
             case FSM_DRAW_CELEBRATION:
 				draw_celebration();
                 gamestate = FSM_CELEBRATION;
+                break;
+
+            case FSM_COUNT:
+                if (++step_1 > 60) {
+                    sfx_play(2, 1);
+                    step_1 = 0;
+                    --step_2;
+                }
+                else if (step_2 == 0) {
+                    sfx_play(3, 1);
+                    music_pause(0);
+                    gamestate = FSM_GAMEPLAY;
+                } else {
+                    spr = 0;
+                    spr = oam_spr(100 + (8 * 3), (10 * 8), '0' + step_2, 0, spr);
+                    spr = oam_spr((27 * 8), (1 * 8) -1, '?', 3, spr);
+                    spr = oam_spr((28 * 8), (1 * 8) -1, '?', 3, spr);
+                    for (i = 0; i < 8; ++i) {
+                        spr = oam_spr(100 + (i << 3), (9 * 8), I18N_EN_COUNT[i], 0, spr); 
+                    }
+                    for (i = 0; i < 4; ++i) {
+                        spr = oam_spr(100 + (i << 3), (10 * 8), I18N_EN_COUNT[i + 8], 0, spr); 
+                    }
+                    for (i = 0; i < joysticks; ++i) {
+                        spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
+                        spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, (i >> 1), spr);
+                    }
+                    for (i = 0; i < 3; ++i) {
+                        spr = oam_spr(100 + (8 * 4) + (i << 3), (10 * 8), ((step_1 >> 3) > i)? '.': ' ', 0, spr);
+                    }
+                    oam_edge();
+                }
                 break;
 
             case FSM_MENU:
@@ -347,10 +388,7 @@ void main(void)
                 spr = oam_spr((28 * 8), (1 * 8) -1, digit_lockup[0][roosters_count], 3, spr);
 
                 /* put ret edges **/
-                spr = oam_spr(MIN_ARENA_X - 6, MIN_ARENA_Y - 7, SPR_EDGE, 0xC0, spr);
-                spr = oam_spr(MAX_ARENA_X + 6, MIN_ARENA_Y - 7, SPR_EDGE, 0x80, spr);
-                spr = oam_spr(MIN_ARENA_X - 6, MAX_ARENA_Y + 7, SPR_EDGE, 0x40, spr);
-                spr = oam_spr(MAX_ARENA_X + 6, MAX_ARENA_Y + 7, SPR_EDGE, 0x00, spr);
+                oam_edge();
 
                 /* end draw */
                 oam_hide_rest(spr);
