@@ -1,4 +1,5 @@
 #define     FAMICON_VERSION     (1)
+#include    "src/anim.h"
 #include    "lib/micromages.h"
 #include    "lib/neslib.h"
 #include    "lib/globals.h"
@@ -6,3 +7,4 @@
 #include    "src/ia.c"
 #include    "src/draw.c"
 #include    "src/game.c"
+#include    "src/anim.c"
