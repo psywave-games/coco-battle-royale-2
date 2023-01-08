@@ -281,7 +281,7 @@ void main(void)
                         }
                     } 
                     /** npc think input **/
-                    else if (framecount.frames == npc_groups[i]) {
+                    else if (framecount.frames == (i & 0x3)) {
                         ia_process(i);
                         s = 0;
                     }

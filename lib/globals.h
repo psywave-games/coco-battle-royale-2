@@ -97,16 +97,6 @@ struct framecount_s {
     unsigned char hunter_step: 4;
 };
 
-
- 
-/** GLOBAL CONSTANTS **/
-static const unsigned char npc_groups[] = {
-    0, 0, 0, 1, 2,
-    3, 0, 1, 2, 3,
-    3, 0, 1, 2, 3,
-    3, 0, 1, 2, 3,
-};
-
 static const unsigned char good_seeds[] = {
     SEED_PACK(283), SEED_PACK(285), SEED_PACK(499),
     SEED_PACK(301), SEED_PACK(305), SEED_PACK(274),
