@@ -16,51 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+static unsigned char second;                  
+static unsigned char speed;
 
-void spawn_cocks()
+void game_setup()
 {
-    set_rand(SEED_UNPACK(good_seeds[seed]));
-    /** reset scores**/
-    for (i = 0; i < MAX_PLAYERS; i++) {
-        player_score[i] = 0;
-        player_rank[i] = 0;
-    }
-    /** reset postions **/
-	for (i = 0; i < MAX_ENIMIES; i++)
-	{
-        if (joysticks == 1 && i == 0){
-            // single player center
-            players[i].x = MID_ARENA_X;
-            players[i].y = MID_ARENA_Y;
-        }
-        else if (i < joysticks) {
-            // multi player positions
-            players[i].x = MID_ARENA_X + (i&1? RANGE_ARENA/2: RANGE_ARENA/(-2));
-            players[i].y = MID_ARENA_Y + (i&2? RANGE_ARENA/2: RANGE_ARENA/(-2));
-        }
-        else do {
-            // random npc positions
-            players[i].x = rand8();
-            players[i].y = rand8();
-            // reset npc behavior
-            npcs[i].input = 0;
-            npcs[i].state = FSM_DEFAULT;
-        }
-        while (
-            // uncenter npc positions
-            players[i].x > MID_ARENA_X - RANGE_ARENA &&  players[i].x < MID_ARENA_X + RANGE_ARENA
-            && players[i].y > MID_ARENA_Y - RANGE_ARENA &&  players[i].y < MID_ARENA_Y + RANGE_ARENA
-        );
-        // look to center
-        players[i].info.status.flipped = players[i].x > MID_ARENA_X? LOOK_LEFT: LOOK_RIGHT;
-        players[i].info.status.coloreven = !(i & 1);
-        players[i].info.status.death = FALSE;
-	}
-}
-
-void main(void)
-{
-	pal_spr(paletteSprite);
+    pal_spr(paletteSprite);
 
     /** NTSC **/
     if (ppu_system()) {
@@ -72,10 +33,11 @@ void main(void)
         second = 50;
         speed = 3;
     }
+}
 
-	/** game loop **/
-	for (;;)
-	{
+void game_loop(void)
+{
+	
 		/** reset sprite count **/
 		spr = 0;
         ++framecount_seed;
@@ -102,17 +64,17 @@ void main(void)
                 break;
 
             case FSM_DRAW_MENU:
-                draw_menu();
+                screen_menu();
                 break;
 
 			case FSM_DRAW_ARENA:
-				draw_arena();
+				screen_arena();
                 anim_reset();
                 gamestate = FSM_COUNT;
 				break;
 
             case FSM_DRAW_CELEBRATION:
-				draw_celebration();
+				screen_celebration();
                 gamestate = FSM_CELEBRATION;
                 break;
 
@@ -167,11 +129,7 @@ void main(void)
                 spr = 0;
                 spr = oam_spr((10 * 8), (15 * 8) + (s << 3), 0xFC, 0, spr);
                 spr = oam_spr((20 * 8), (15 * 8) + (s << 3), 0xFC, 0, spr);
-                /* put ret edges **/
-                spr = oam_spr((5 * 8), (3 * 8) - 1, SPR_EDGE, 0xC0, spr);
-                spr = oam_spr((26 * 8), (3 * 8) - 1, SPR_EDGE, 0x80, spr);
-                spr = oam_spr((5 * 8), (10 * 8) - 1, SPR_EDGE, 0x40, spr);
-                spr = oam_spr((26 * 8), (10 * 8) - 1, SPR_EDGE, 0x00, spr);
+                oam_edge((6 * 8) - 2, (4 * 8) - 2, (25 * 8) + 2, (9 * 8));
                 /** animate logo*/
                 if (roosters_count == 0) {
                     anim_menu();
@@ -359,7 +317,7 @@ void main(void)
                 spr = oam_spr((28 * 8), (1 * 8) -1, digit_lockup[0][roosters_count], 3, spr);
 
                 /* put ret edges **/
-                oam_edge();
+                oam_edge(MIN_ARENA_X, MIN_ARENA_Y, MAX_ARENA_X, MAX_ARENA_Y);
 
                 /* end draw */
                 oam_hide_rest(spr);
@@ -371,9 +329,10 @@ void main(void)
                 seed = (seed + 1) % sizeof(good_seeds);
                 gamestate = FSM_DRAW_ARENA;
                 roosters_total = 0;
-                spawn_cocks();
+                set_rand(SEED_UNPACK(good_seeds[seed]));
+                spawn();
                 set_rand((~(framecount_seed << 8) | (framecount_seed >> 8)));
                 break;
 		}
-	}
+	
 }

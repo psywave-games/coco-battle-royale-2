@@ -1,10 +1,10 @@
 #include "anim.h"
+#include "game.h"
 
 static unsigned char step_1;
 static unsigned char step_2;
 static unsigned char step_3;
 static unsigned char step_4;
-//static extern unsigned second;
 
 void anim_reset()
 {
@@ -62,6 +62,6 @@ bool anim_count(unsigned char end)
     for (i = 0; i < 3; ++i) {
         spr = oam_spr(100 + (8 * 4) + (i << 3), (10 * 8), ((step_1 >> 3) > i)? '.': ' ', 0, spr);
     }
-    oam_edge();
+    oam_edge(MIN_ARENA_X, MIN_ARENA_Y, MAX_ARENA_X, MAX_ARENA_Y);
     return false;
 }
