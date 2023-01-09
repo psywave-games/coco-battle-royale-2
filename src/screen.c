@@ -23,7 +23,7 @@ void screen_menu()
     vram_put(BR_BL_TR_TL(2,1,2,2));
     /** colorize link */
     vram_adr(ATADR_A(1,26));
-    vram_fill(BR_BL_TR_TL(1,1,2,2), 30);
+    vram_fill(BR_BL_TR_TL(1,1,2,2), 8);
     /** game title */
     put_ret(5, 3, 25, 9);
     put_logo();

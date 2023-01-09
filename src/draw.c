@@ -8,8 +8,8 @@ void oam_edge(unsigned char x1, unsigned char y1, unsigned char x2, unsigned cha
 
 void put_all(const char c)
 {
-    vram_adr(NTADR_A(0,1));
-    vram_fill(c, 32*28);
+    vram_adr(NTADR_A(0,0));
+    vram_fill(c, 32*30);
 }
 
 void put_str(unsigned int adr,const char *str)
