@@ -31,7 +31,7 @@ void game_setup()
     /** PAL **/
     else {
         second = 50;
-        speed = 3;
+        speed = 2;
     }
 }
 
@@ -43,7 +43,7 @@ void game_loop(void)
         ++framecount_seed;
 
 		/** wait for next frame**/
-		ppu_wait_nmi();
+        ppu_wait_nmi();
 
 		/** joystick inputs **/
         for (i = 0; i < joysticks; i++) {
@@ -167,8 +167,11 @@ void game_loop(void)
 
                 /** entitys loop **/
                 for (i = 0; i < MAX_ENIMIES; i++) {
+                    static struct coco_s player;
+                    player = players[i];
+
                     /** out of game **/
-                    if (players[i].info.status.death) {
+                    if (player.info.status.death) {
                         continue;
                     }
 
@@ -178,24 +181,24 @@ void game_loop(void)
                     /** player input **/
                     if (i < joysticks) {
                         if(gamepad[i] & PAD_LEFT) {
-                            players[i].x -= speed;
+                            player.x -= speed;
                             s = -1;
                         }
                         else if(gamepad[i] & PAD_RIGHT) {
-                            players[i].x += speed;
+                            player.x += speed;
                             s = 1;
                         } else {
                             s = 0;
                         }
                         if(gamepad[i] & PAD_UP) {
-                            players[i].y -= speed;
+                            player.y -= speed;
                         }
                         else if(gamepad[i] & PAD_DOWN) {
-                            players[i].y += speed;
+                            player.y += speed;
                         }
-                        if ((gamepad[i] & (PAD_B | PAD_A)) && !(gamepad_old[i] & (PAD_B | PAD_A)) && players[i].framedata == 0) {
-                            players[i].framedata = FRAME_PREPARE;
-                            players[i].info.status.attacking = 1;
+                        if ((gamepad[i] & (PAD_B | PAD_A)) && !(gamepad_old[i] & (PAD_B | PAD_A)) && player.framedata == 0) {
+                            player.framedata = FRAME_PREPARE;
+                            player.info.status.attacking = 1;
                         }
                     } 
                     /** npc think input **/
@@ -206,62 +209,65 @@ void game_loop(void)
                     /** npc excute input **/
                     else {
                         if(npcs[i].input & PAD_LEFT) {
-                            players[i].x -= speed;
+                            player.x -= speed;
                             s = -1;
                         }
                         else if(npcs[i].input & PAD_RIGHT) {
-                            players[i].x += speed;
+                            player.x += speed;
                             s = 1;
                         } else {
                             s = 0;
                         }
                         if(npcs[i].input & PAD_UP) {
-                            players[i].y -= speed;
+                            player.y -= speed;
                         }
                         else if(npcs[i].input & PAD_DOWN) {
-                            players[i].y += speed;
+                            player.y += speed;
                         }
                         if (npcs[i].input & PAD_A) {
-                            players[i].framedata = FRAME_PREPARE;
-                            players[i].info.status.attacking = 1;
+                            player.framedata = FRAME_PREPARE;
+                            player.info.status.attacking = 1;
                         }
                     }
 
                     /** animation sprite **/
-                    players[i].info.status.walking = (players[i].x ^ players[i].y)>>3;
-                    players[i].info.status.attacking = players[i].framedata < FRAME_ATTACKING && players[i].framedata > FRAME_RECOVERY;
-                    players[i].info.status.recovering = players[i].framedata && !players[i].info.status.attacking;
+                    player.info.status.walking = (player.x ^ player.y)>>3;
+                    player.info.status.attacking = player.framedata < FRAME_ATTACKING && player.framedata > FRAME_RECOVERY;
+                    player.info.status.recovering = player.framedata && !player.info.status.attacking;
                     switch (s) {
-                        case 1: players[i].info.status.flipped = 0; break;
-                        case -1: players[i].info.status.flipped = 1; break;
+                        case 1: player.info.status.flipped = 0; break;
+                        case -1: player.info.status.flipped = 1; break;
                     }
 
                     /** arena colision **/
-                    players[i].x = CLAMP(players[i].x, MIN_ARENA_X, MAX_ARENA_X);
-                    players[i].y = CLAMP(players[i].y, MIN_ARENA_Y, MAX_ARENA_Y);
+                    player.x = CLAMP(player.x, MIN_ARENA_X, MAX_ARENA_X);
+                    player.y = CLAMP(player.y, MIN_ARENA_Y, MAX_ARENA_Y);
 
                     /** mediator **/
-                    if (players[i].framedata) {
-                        players[i].framedata -= 1;
+                    if (player.framedata) {
+                        player.framedata -= 1;
                         for (j = 0; j < MAX_ENIMIES; j++) {
+                            static struct coco_s victim;
                             /** end of attack **/
-                            if (!players[i].info.status.attacking) {
+                            if (!player.info.status.attacking) {
                                 break;
                             }
                             /** not attacking itself **/
                             if (i == j) {
                                 continue;
                             }
+                            /** optmice access **/
+                            victim = players[j];
                             /** blocking attack **/
-                            if (players[j].framedata) {
+                            if (victim.framedata) {
                                 continue;
                             }
                             /** pidgeot is fainted dude **/
-                            if (players[j].info.status.death) {
+                            if (victim.info.status.death) {
                                 continue;
                             }
                             /** far far away **/
-                            if (DISTANCE(players[i].x, players[j].x) > 8 || DISTANCE(players[i].y, players[j].y) > 8) {
+                            if (DISTANCE(player.x, victim.x) > 8 || DISTANCE(player.y, victim.y) > 8) {
                                 continue;
                             }
 
@@ -300,11 +306,12 @@ void game_loop(void)
 
                     /** draw pointer **/
                     if (i < joysticks) {
-                        spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
+                        spr = oam_spr(player.x, player.y - 8, SPR_POINTER + i, 4, spr);
                     }
 
                     /** draw cock **/   
-                    spr = oam_spr(players[i].x, players[i].y, players[i].info.sprite, (i >> 1), spr);
+                    spr = oam_spr(player.x, player.y, player.info.sprite, (i >> 1), spr);
+                    players[i] = player;
                 }
                 /** game over */
                 if (roosters_total == 1) {
