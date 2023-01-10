@@ -1,3 +1,5 @@
+#include "ia.h"
+
 void ia_hunter_cycle()
 {
     /** verify cycle is completed **/

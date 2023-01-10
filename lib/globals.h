@@ -140,8 +140,6 @@ static enum fsm_game_e gamestate;	            /** finite state machine **/
 static unsigned char seed;						/** randomness control **/
 static unsigned char roosters_count;            /** cocks counter **/
 static unsigned char roosters_total;            /** total of cocks arrive **/
-static unsigned char second;                    /** seconds by frame (NTSC/PAL)*/
-static unsigned char speed;                     /** player speed (NTSC/PAL)*/
 
 /** micromages 4 players **/
 static unsigned char joysticks = 1;				/** local multiplayer mode **/
@@ -157,9 +155,3 @@ static signed char s;
 static unsigned int big1, big2;
 static unsigned char i,j,l,r;
 static unsigned char spr;
-
-/** ANIMATION VARIABLE */
-static unsigned char step_1;
-static unsigned char step_2;
-static unsigned char step_3;
-static unsigned char step_4;
