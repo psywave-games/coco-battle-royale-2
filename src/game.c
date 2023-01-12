@@ -289,6 +289,9 @@ void game_loop(void)
                                     /** winner */
                                     if (roosters_total <= 2) {
                                         player_rank[r] = 1;
+                                    /** not blink */
+                                    } else {
+                                        continue;
                                     }
                                 }
                                 /** looser */
