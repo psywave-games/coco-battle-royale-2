@@ -79,8 +79,15 @@ void game_loop(void)
                 break;
 
             case FSM_COUNT:
+                spr = 0;
                 if (anim_count(5)) {
                     gamestate = FSM_GAMEPLAY;
+                }
+                for (i = 0; i < joysticks; ++i) {
+                    j = (players[i].info.sprite &~ 0x40);
+                    r = (i & 0x3) | (players[i].info.sprite & 0x40);
+                    spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
+                    spr = oam_spr(players[i].x, players[i].y, j, r, spr);
                 }
                 break;
 
@@ -309,8 +316,8 @@ void game_loop(void)
                         spr = oam_spr(player.x, player.y - 8, SPR_POINTER + i, 4, spr);
                     }
 
-                    /** draw cock **/   
-                    spr = oam_spr(player.x, player.y, player.info.sprite, (i >> 1), spr);
+                    /** draw cock **/  
+                    spr = oam_spr(player.x, player.y, (player.info.sprite &~ 0x40), (i & 0x3) | (player.info.sprite & 0x40), spr);
                     players[i] = player;
                 }
                 /** game over */

@@ -65,11 +65,11 @@ struct coco_s {
         signed char sprite;
         struct {
             unsigned char walking: 1;
-            unsigned char flipped: 1;
             unsigned char attacking: 1;
             unsigned char recovering: 1;
-            unsigned char coloreven: 1;
+            unsigned char colorvar: 2;
             unsigned char death: 1;
+            unsigned char flipped: 1;
         } status;
     } info;
 };
@@ -104,9 +104,9 @@ const char paletteBackground[] = {
 
 const char paletteSprite[] = {
 	0x0f,0x30,0x27,0x16,
-	0x0f,0x2C,0x25,0x30,
-	0x0f,0x13,0x15,0x25,
-	0x0f,0x26,0x2A,0x36,
+	0x0f,0x2C,0x24,0x29,
+	0x0f,0x26,0x21,0x2a,
+	0x0f,0x15,0x14,0x38,
 };
 
 const char digit_lockup[2][] = {

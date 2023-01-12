@@ -65,8 +65,10 @@ void screen_arena()
     put_str(NTADR_A(0,28), I18N_EN_GAMEPLAY_NAME);
     /* put header */
     vram_adr(NTADR_A(0, 1));
-    put_rank();  
-    put_str(NTADR_A(26,1), "\x10  /20");
+    put_rank();
+    vram_adr(NTADR_A(26,1));
+    vram_put(0x00);
+    vram_write("  /20", 5);
     ppu_on_all();
 }
 

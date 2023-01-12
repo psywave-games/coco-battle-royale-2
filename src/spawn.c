@@ -2,6 +2,8 @@
 
 void spawn()
 {
+    unsigned char colorvar = 0;
+
     /** reset scores**/
     for (i = 0; i < MAX_PLAYERS; i++) {
         player_score[i] = 0;
@@ -35,7 +37,7 @@ void spawn()
         );
         // look to center
         players[i].info.status.flipped = players[i].x > MID_ARENA_X? LOOK_LEFT: LOOK_RIGHT;
-        players[i].info.status.coloreven = !(i & 1);
+        players[i].info.status.colorvar = (++colorvar >> 2) % 3;
         players[i].info.status.death = FALSE;
 	}
 }

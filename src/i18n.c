@@ -1,9 +1,9 @@
-#define SPR_JP_HITO                     0x0C
-#define SPR_JP_O                        0x0D
+#define SPR_JP_HITO                     0x06
+#define SPR_JP_O                        0x07
 #define SPR_JP_N                        0x0E
 #define SPR_JP_DO                       0x0F
-#define SPR_JP_RI                       0x1C
-#define SPR_JP_TSU                      0x1D
+#define SPR_JP_RI                       0x16
+#define SPR_JP_TSU                      0x17
 #define SPR_JP_DZU                      0x1E
 #define SPR_JP_KU                       0x1F
 
