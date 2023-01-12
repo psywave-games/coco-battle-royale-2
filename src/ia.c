@@ -1,5 +1,23 @@
 #include "ia.h"
 
+enum fsm_ia_e {
+    FSM_DEFAULT,
+    FSM_RANDOM,
+    FSM_HUNTER_WAIT,
+    FSM_HUNTER,
+    FSM_SCAPE_WAIT,
+    FSM_SCAPE,
+    FSM_WINNER
+};
+
+struct npc_ia_s {
+    unsigned char target;
+    unsigned char input;   
+    enum fsm_ia_e state;
+};
+
+static struct npc_ia_s npcs[MAX_ENIMIES];
+
 void ia_hunter_cycle()
 {
     /** verify cycle is completed **/
