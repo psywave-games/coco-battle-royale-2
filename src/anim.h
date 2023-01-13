@@ -6,5 +6,6 @@
 void anim_reset(void);
 void anim_menu(void);
 bool anim_count(unsigned char end);
+void anim_winner_color(void);
 
 #endif

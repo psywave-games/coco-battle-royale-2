@@ -60,3 +60,23 @@ bool anim_count(unsigned char end)
     oam_edge(MIN_ARENA_X, MIN_ARENA_Y, MAX_ARENA_X, MAX_ARENA_Y);
     return finish;
 }
+
+void anim_winner_color()
+{
+    static unsigned char s0 = 0;
+    static unsigned char s1 = 0;
+    static unsigned char s2 = 0;
+    if (++s0 >= 5) {
+        s0 = 0;
+        ++s1;
+    }
+    if (s1 >= 4) {
+        s1 = 0;
+        ++s2;
+    }
+    if (s2 >= 3) {
+        s2 = 0;
+    }
+    s = s1 << 2;
+    i = s2;
+}

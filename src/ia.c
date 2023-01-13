@@ -111,7 +111,7 @@ void ia_process(unsigned char npc)
             break;
     
         default:
-            if (roosters_total == 1) {
+            if (gamestate == FSM_CELEBRATION) {
                 npcs[npc].state = FSM_WINNER;
             }
             else if (j < 60) {

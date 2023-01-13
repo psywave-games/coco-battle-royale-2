@@ -16,8 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+static void game_move(void);
+
 static unsigned char second;                  
 static unsigned char speed;
+static unsigned char winner_id;
+static struct coco_s player;
+
 
 void game_setup()
 {
@@ -144,12 +149,32 @@ void game_loop(void)
                 break;
 
             case FSM_CELEBRATION:
+                seed = (seed + 1) % sizeof(good_seeds);
                 if (gamepad_old[PLAYER_1] == 0) {
                     /** restart game **/
                     if ((gamepad[PLAYER_1] & PAD_START)) {
                         gamestate = FSM_RESTART;
                     }
                 }
+                s = 0;
+                i = winner_id;
+                player = players[i];
+                ia_process(i);
+                game_move();
+                if (player.framedata) {
+                    --player.framedata;
+                }
+                players[i] = player;
+                if (winner_id < joysticks) {
+                    spr = oam_spr(player.x, player.y - 8, SPR_POINTER + i, 0, spr);
+                }
+                anim_winner_color();
+                r = (player.info.sprite & 0x40) | 1;
+                j = (player.info.sprite &~ 0x40) | (i << 3);
+                pal_col(21, paletteSprite[s + 1]);
+                pal_col(22, paletteSprite[s + 2]);
+                pal_col(23, paletteSprite[s + 3]);                
+                spr = oam_spr(player.x, player.y, j, r, spr);
                 break;
 
             case FSM_GAMEPLAY:
@@ -174,7 +199,6 @@ void game_loop(void)
 
                 /** entitys loop **/
                 for (i = 0; i < MAX_ENIMIES; i++) {
-                    static struct coco_s player;
                     player = players[i];
 
                     /** out of game **/
@@ -185,70 +209,7 @@ void game_loop(void)
                     /** number of coocks alive **/
                     roosters_count += 1;
                     
-                    /** player input **/
-                    if (i < joysticks) {
-                        if(gamepad[i] & PAD_LEFT) {
-                            player.x -= speed;
-                            s = -1;
-                        }
-                        else if(gamepad[i] & PAD_RIGHT) {
-                            player.x += speed;
-                            s = 1;
-                        } else {
-                            s = 0;
-                        }
-                        if(gamepad[i] & PAD_UP) {
-                            player.y -= speed;
-                        }
-                        else if(gamepad[i] & PAD_DOWN) {
-                            player.y += speed;
-                        }
-                        if ((gamepad[i] & (PAD_B | PAD_A)) && !(gamepad_old[i] & (PAD_B | PAD_A)) && player.framedata == 0) {
-                            player.framedata = FRAME_PREPARE;
-                            player.info.status.attacking = 1;
-                        }
-                    } 
-                    /** npc think input **/
-                    else if (framecount.frames == (i & 0x3)) {
-                        ia_process(i);
-                        s = 0;
-                    }
-                    /** npc excute input **/
-                    else {
-                        if(npcs[i].input & PAD_LEFT) {
-                            player.x -= speed;
-                            s = -1;
-                        }
-                        else if(npcs[i].input & PAD_RIGHT) {
-                            player.x += speed;
-                            s = 1;
-                        } else {
-                            s = 0;
-                        }
-                        if(npcs[i].input & PAD_UP) {
-                            player.y -= speed;
-                        }
-                        else if(npcs[i].input & PAD_DOWN) {
-                            player.y += speed;
-                        }
-                        if (npcs[i].input & PAD_A) {
-                            player.framedata = FRAME_PREPARE;
-                            player.info.status.attacking = 1;
-                        }
-                    }
-
-                    /** animation sprite **/
-                    player.info.status.walking = (player.x ^ player.y)>>3;
-                    player.info.status.attacking = player.framedata < FRAME_ATTACKING && player.framedata > FRAME_RECOVERY;
-                    player.info.status.recovering = player.framedata && !player.info.status.attacking;
-                    switch (s) {
-                        case 1: player.info.status.flipped = 0; break;
-                        case -1: player.info.status.flipped = 1; break;
-                    }
-
-                    /** arena colision **/
-                    player.x = CLAMP(player.x, MIN_ARENA_X, MAX_ARENA_X);
-                    player.y = CLAMP(player.y, MIN_ARENA_Y, MAX_ARENA_Y);
+                    game_move();
 
                     /** mediator **/
                     if (player.framedata) {
@@ -326,6 +287,10 @@ void game_loop(void)
                 /** game over */
                 if (roosters_total == 1) {
                     gamestate = FSM_DRAW_CELEBRATION;
+                    winner_id = 0;
+                    while (players[winner_id].info.status.death) {
+                        ++winner_id;
+                    }
                 }
 
                 /** draw number of coocks **/
@@ -352,4 +317,72 @@ void game_loop(void)
                 break;
 		}
 	
+}
+
+static void game_move()
+{
+    /** player input **/
+    if (i < joysticks) {
+        if(gamepad[i] & PAD_LEFT) {
+            player.x -= speed;
+            s = -1;
+        }
+        else if(gamepad[i] & PAD_RIGHT) {
+            player.x += speed;
+            s = 1;
+        } else {
+            s = 0;
+        }
+        if(gamepad[i] & PAD_UP) {
+            player.y -= speed;
+        }
+        else if(gamepad[i] & PAD_DOWN) {
+            player.y += speed;
+        }
+        if ((gamepad[i] & (PAD_B | PAD_A)) && !(gamepad_old[i] & (PAD_B | PAD_A)) && player.framedata == 0) {
+            player.framedata = FRAME_PREPARE;
+            player.info.status.attacking = 1;
+        }
+    } 
+    /** npc think input **/
+    else if (framecount.frames == (i & 0x3)) {
+        ia_process(i);
+        s = 0;
+    }
+    /** npc excute input **/
+    else {
+        if(npcs[i].input & PAD_LEFT) {
+            player.x -= speed;
+            s = -1;
+        }
+        else if(npcs[i].input & PAD_RIGHT) {
+            player.x += speed;
+            s = 1;
+        } else {
+            s = 0;
+        }
+        if(npcs[i].input & PAD_UP) {
+            player.y -= speed;
+        }
+        else if(npcs[i].input & PAD_DOWN) {
+            player.y += speed;
+        }
+        if (npcs[i].input & PAD_A) {
+            player.framedata = FRAME_PREPARE;
+            player.info.status.attacking = 1;
+        }
+    }
+
+    /** animation sprite **/
+    player.info.status.walking = (player.x ^ player.y)>>3;
+    player.info.status.attacking = player.framedata < FRAME_ATTACKING && player.framedata > FRAME_RECOVERY;
+    player.info.status.recovering = player.framedata && !player.info.status.attacking;
+    switch (s) {
+        case 1: player.info.status.flipped = 0; break;
+        case -1: player.info.status.flipped = 1; break;
+    }
+
+    /** arena colision **/
+    player.x = CLAMP(player.x, MIN_ARENA_X, MAX_ARENA_X);
+    player.y = CLAMP(player.y, MIN_ARENA_Y, MAX_ARENA_Y);
 }
