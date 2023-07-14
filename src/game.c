@@ -175,6 +175,8 @@ void game_loop(void)
                 pal_col(22, paletteSprite[s + 2]);
                 pal_col(23, paletteSprite[s + 3]);                
                 spr = oam_spr(player.x, player.y, j, r, spr);
+                oam_edge(MIN_ARENA_X, MIN_ARENA_Y, MAX_ARENA_X, MAX_ARENA_Y);
+                oam_hide_rest(spr);
                 break;
 
             case FSM_GAMEPLAY:
