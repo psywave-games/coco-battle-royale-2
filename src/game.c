@@ -89,6 +89,9 @@ void game_loop(void)
                     gamestate = FSM_GAMEPLAY;
                 }
                 for (i = 0; i < joysticks; ++i) {
+                    if (players[i].info.status.death) {
+                        continue;
+                    }
                     j = (players[i].info.sprite &~ 0x40);
                     r = (i & 0x3) | (players[i].info.sprite & 0x40);
                     spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
