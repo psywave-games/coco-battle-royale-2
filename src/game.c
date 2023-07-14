@@ -173,7 +173,7 @@ void game_loop(void)
                 }
                 anim_winner_color();
                 r = (player.info.sprite & 0x40) | 1;
-                j = (player.info.sprite &~ 0x40) | (i << 3);
+                j = (player.info.sprite &~ (0x40|0x18)) | (i << 3);
                 pal_col(21, paletteSprite[s + 1]);
                 pal_col(22, paletteSprite[s + 2]);
                 pal_col(23, paletteSprite[s + 3]);                
