@@ -93,7 +93,7 @@ void game_loop(void)
                         continue;
                     }
                     j = (players[i].info.sprite &~ 0x40);
-                    r = (i & 0x3) | (players[i].info.sprite & 0x40);
+                    r = ((i>>1) & 0x3) | (players[i].info.sprite & 0x40);
                     spr = oam_spr(players[i].x, players[i].y - 8, SPR_POINTER + i, 4, spr);
                     spr = oam_spr(players[i].x, players[i].y, j, r, spr);
                 }
@@ -286,7 +286,7 @@ void game_loop(void)
                     }
 
                     /** draw cock **/  
-                    spr = oam_spr(player.x, player.y, (player.info.sprite &~ 0x40), (i & 0x3) | (player.info.sprite & 0x40), spr);
+                    spr = oam_spr(player.x, player.y, (player.info.sprite &~ 0x40), ((i>>1) & 0x3) | (player.info.sprite & 0x40), spr);
                     players[i] = player;
                 }
                 /** game over */

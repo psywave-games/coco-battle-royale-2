@@ -2,7 +2,7 @@
 
 void spawn()
 {
-    unsigned char colorvar = 0;
+    unsigned char colorvar = 2;
 
     /** reset scores**/
     for (i = 0; i < MAX_PLAYERS; i++) {
