@@ -161,8 +161,8 @@ void game_loop(void)
                 }
                 s = 0;
                 i = winner_id;
+                ++framecount.frames;
                 player = players[i];
-                ia_process(i);
                 game_move();
                 if (player.framedata) {
                     --player.framedata;
