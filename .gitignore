@@ -6,3 +6,7 @@ cc65
 ./bin/*
 !asm/*.s
 !bin/.gitkeep
+vendor/
+Makefile
+CMakeFiles/
+CMakeCache.txt
