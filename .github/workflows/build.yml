@@ -1,0 +1,25 @@
+name: build
+
+on: [push]
+
+jobs:
+  nes:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Prepare project (Cmake)
+        run: cmake .
+      -
+        name: Build project (Makefile)
+        run: make
+      -
+        name: Upload roms artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: roms
+          path: bin/*.nes
+          if-no-files-found: error
+          retention-days: 1
