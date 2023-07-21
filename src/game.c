@@ -23,6 +23,9 @@ static unsigned char speed;
 static unsigned char winner_id;
 static struct coco_s player;
 
+static signed char earthquake;
+static signed char eqx;
+static signed char eqy;
 
 void game_setup()
 {
@@ -198,6 +201,19 @@ void game_loop(void)
                     }
                 }
 
+                /** earthquake effect **/
+                eqx = earthquake;
+                eqy = earthquake;
+                if (earthquake) {
+                    --earthquake;
+                    if (earthquake & 1) {
+                        eqx = -earthquake;
+                    }
+                    if (earthquake & 3) {
+                        eqy = -earthquake;
+                    }
+                }
+
                 /** preapare **/
                 roosters_count = 0;
                 ia_hunter_cycle();
@@ -251,6 +267,7 @@ void game_loop(void)
                             for (r = 0; r < joysticks; ++r){
                                 /** points */
                                 if (r == i) {
+                                    earthquake += 3;
                                     ++player_score[i];
                                     /** winner */
                                     if (roosters_total <= 2) {
@@ -282,11 +299,11 @@ void game_loop(void)
 
                     /** draw pointer **/
                     if (i < joysticks) {
-                        spr = oam_spr(player.x, player.y - 8, SPR_POINTER + i, 4, spr);
+                        spr = oam_spr(player.x + eqx, player.y + eqy - 8, SPR_POINTER + i, 4, spr);
                     }
 
                     /** draw cock **/  
-                    spr = oam_spr(player.x, player.y, (player.info.sprite &~ 0x40), ((i>>1) & 0x3) | (player.info.sprite & 0x40), spr);
+                    spr = oam_spr(player.x + eqx, player.y + eqy, (player.info.sprite &~ 0x40), ((i>>1) & 0x3) | (player.info.sprite & 0x40), spr);
                     players[i] = player;
                 }
                 /** game over */
