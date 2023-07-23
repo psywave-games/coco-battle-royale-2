@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   nes:
+    if: false
     runs-on: ubuntu-latest
     steps:
       -
@@ -56,15 +57,3 @@ jobs:
           mkdir -p html &&
           sh -c 'awk "{gsub(/{{game}}/, \"Kokobatoru 2\");} /{{rom}}/ {cmd=\"base64 bin/kokobatoru.nes\"; cmd | getline var; close(cmd); gsub(/{{rom}}/, var);} 1" res/index.html' > html/kokobatoru.html &&
           sh -c 'awk "{gsub(/{{game}}/, \"Coco Battle Royale II\");} /{{rom}}/ {cmd=\"base64 bin/cocobattleroyale.nes\"; cmd | getline var; close(cmd); gsub(/{{rom}}/, var);} 1" res/index.html' > html/cocobattleroyale.html
-      -
-        name: Setup Pages
-        uses: actions/configure-pages@v3
-      -
-        name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: 'html'
-      -
-        id: deployment
-        name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
