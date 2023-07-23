@@ -65,8 +65,8 @@ jobs:
         run: >-
           mkdir -p html &&
           curl -o html/nes.js "https://cdn.jsdelivr.net/gh/takahirox/nes-js@v0.0.1/build/nes.min.js" &&
-          sh -c 'awk "{gsub(/{{game}}/, \"Kokobatoru 2\");} /{{rom}}/ {cmd=\"base64 bin/kokobatoru.nes\"; cmd | getline var; close(cmd); gsub(/{{rom}}/, var);} 1" res/index.html' > html/kokobatoru.html &&
-          sh -c 'awk "{gsub(/{{game}}/, \"Coco Battle Royale II\");} /{{rom}}/ {cmd=\"base64 bin/cocobattleroyale.nes\"; cmd | getline var; close(cmd); gsub(/{{rom}}/, var);} 1" res/index.html' > html/cocobattleroyale.html
+          sh -c 'awk "{gsub(/{{game}}/, \"Kokobatoru 2\");} /{{rom}}/ {cmd=\"base64 bin/kokobatoru.nes\"; while ((cmd | getline line) > 0) var = var line; close(cmd); gsub(/{{rom}}/, var);} 1" res/index.html' > html/kokobatoru.html &&
+          sh -c 'awk "{gsub(/{{game}}/, \"Coco Battle Royale II\");} /{{rom}}/ {cmd=\"base64 bin/cocobattleroyale.nes\"; while ((cmd | getline line) > 0) var = var line; close(cmd); gsub(/{{rom}}/, var);} 1" res/index.html' > html/cocobattleroyale.html
       -
         name: Setup Pages
         uses: actions/configure-pages@v3
