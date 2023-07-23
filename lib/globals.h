@@ -1,8 +1,12 @@
 /**
  * @todo: refact this cheat.
  */
+#ifndef MAX_ENIMIES
 #define MAX_ENIMIES                     (20)
+#endif
+#ifndef MAX_PLAYERS
 #define MAX_PLAYERS                     (4)
+#endif
 #define SPEED                           (3)
 #define MIN_ARENA_X                     (6)
 #define MAX_ARENA_X                     (242)

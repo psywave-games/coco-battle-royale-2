@@ -117,7 +117,7 @@ void game_loop(void)
                 }
 
                 /** Limit menu options **/
-                s = CLAMP(s, roosters_count == 0, 4);
+                s = CLAMP(s, roosters_count == 0, MAX_PLAYERS);
 
                 /** begin start the game **/
                 i = gamepad[PLAYER_1] & PAD_START; /** start button or insert coin to use all options **/
@@ -136,7 +136,7 @@ void game_loop(void)
                             joysticks = s;
                             gamestate = FSM_MUSIC_ARENA;
                             /** when non-zero is inactive */
-                            for(i = 0; i < MAX_PLAYERS; i++) {
+                            for(i = 0; i < 4; i++) {
                                 playerActive[i] = i >= s;
                             }
                             break;

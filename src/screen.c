@@ -30,12 +30,18 @@ void screen_menu()
     /** put menu options */
     vram_adr(NTADR_A(11,16));
     vram_write(jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS, 9);
+#if MAX_PLAYERS >= 2
     vram_adr(NTADR_A(11,17));
     vram_write(jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS, 9);
+#endif
+#if MAX_PLAYERS > 3
     vram_adr(NTADR_A(11,18));
     vram_write(jp? I18N_JP_3_PLAYERS: I18N_EN_3_PLAYERS, 9);
+#endif
+#if MAX_PLAYERS > 4
     vram_adr(NTADR_A(11,19));
     vram_write(jp? I18N_JP_4_PLAYERS: I18N_EN_4_PLAYERS, 9);
+#endif
     /** put copyright */
     put_str(NTADR_A(3,25), I18N_EN_CREDITS_1);
     put_str(NTADR_A(1,26), I18N_EN_CREDITS_2);
