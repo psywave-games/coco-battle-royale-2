@@ -1,6 +1,17 @@
 name: build
 
-on: [push]
+on: 
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   nes:
@@ -23,3 +34,33 @@ jobs:
           path: bin/*.nes
           if-no-files-found: error
           retention-days: 1
+
+    html5:
+      environment:
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
+      steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Prepare project (Cmake)
+        run: cmake . -DCMAKE_MAKE_PROGRAM=make -DCMAKE_C_FLAGS="-DMAX_PLAYERS=1"
+      -
+        name: Build project (Makefile)
+        run: make
+      -
+        name: Build page (Makefile)
+        run: >-
+          mkdir -p html &&
+          sh -c 'awk "{gsub(/{{game}}/, \"Kokobatoru 2\");} /{{rom}}/ {cmd=\"base64 bin/kokobatoru.nes\"; cmd | getline var; close(cmd); gsub(/{{rom}}/, var);} 1" res/index.html' > html/kokobatoru.html &&
+          sh -c 'awk "{gsub(/{{game}}/, \"Coco Battle Royale II\");} /{{rom}}/ {cmd=\"base64 bin/cocobattleroyale.nes\"; cmd | getline var; close(cmd); gsub(/{{rom}}/, var);} 1" res/index.html' > html/cocobattleroyale.html
+      -
+        name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: 'html'
+      -
+        id: deployment
+        name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2

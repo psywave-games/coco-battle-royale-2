@@ -3,9 +3,11 @@ cc65
 *.s
 *.nes
 *.nes.zip
+.DS_Store
 ./bin/*
 !asm/*.s
 !bin/.gitkeep
+html/
 vendor/
 Makefile
 CMakeFiles/

@@ -1,0 +1,38 @@
+<head>
+    <title>{{game}}</title>
+    <style>
+        body {
+            width: 100vw;
+            background-color: black;
+        }
+        canvas {
+            width: 100vmin;
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+  </style>
+  <script type="text/javascript" src="https://cdn.rawgit.com/takahirox/nes-js/v0.0.1/build/nes.min.js"></script>
+  <script type="text/javascript" >
+    window.addEventListener("DOMContentLoaded", () => {
+        const nes = new NesJs.Nes();
+
+        nes.setRom(new NesJs.Rom(Uint8Array.from(atob("{{rom}}"), c => c.charCodeAt(0))));
+        nes.setDisplay(new NesJs.Display(document.querySelector('#gameCanvas')));
+        nes.setAudio(new NesJs.Audio());
+
+        window.onkeydown = function(e) { nes.handleKeyDown(e); };
+        window.onkeyup = function(e) { nes.handleKeyUp(e); };
+
+        nes.bootup();
+        nes.run();
+    });
+  </script>
+</head>
+<body>
+    <canvas id="gameCanvas" width="256" height="240"></canvas>
+</body>
