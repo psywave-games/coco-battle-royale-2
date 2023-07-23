@@ -5,27 +5,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  nes:
-    if: false
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
-      -
-        name: Prepare project (Cmake)
-        run: cmake . -DCMAKE_MAKE_PROGRAM=make
-      -
-        name: Build project (Makefile)
-        run: make
-      -
-        name: Upload roms artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: roms
-          path: bin/*.nes
-          if-no-files-found: error
-          retention-days: 1
 
   html5:
       runs-on: ubuntu-latest
