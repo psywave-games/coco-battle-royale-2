@@ -1,6 +1,7 @@
 <head>
     <title>{{game}}</title>
     <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             width: 100vw;
@@ -17,7 +18,7 @@
             image-rendering: crisp-edges;
         }
   </style>
-  <script type="text/javascript" src="https://cdn.rawgit.com/takahirox/nes-js/v0.0.1/build/nes.min.js"></script>
+  <script type="text/javascript" src="./nes.js"></script>
   <script type="text/javascript" >
     window.addEventListener("DOMContentLoaded", () => {
         const nes = new NesJs.Nes();
