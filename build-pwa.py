@@ -2,10 +2,15 @@
 from base64 import b64encode as b64
 import requests
 import sys
+import os
 
 title = 'Coco Battle Royale II'
 input = './bin/cocobattleroyale.nes'
 output = './html/usa.html'
+
+
+if not os.path.exists('html'): 
+    os.mkdir('html')
 
 if '--jap' in sys.argv:
     title = 'Kokobatoru 2'
@@ -17,7 +22,7 @@ if '--download' in sys.argv:
         cdn = 'https://cdn.jsdelivr.net/gh/takahirox/nes-js@v0.0.1/build'
         with requests.get(f'{cdn}/{file_name}', stream=True) as download:
             file_name = file_name.replace(r'.min.js', '.js')
-            open(f'./html/{file_name}', "x").write(download.text)
+            open(f'./html/{file_name}', "w+").write(download.text)
 
 rom = b64(open(input, "rb").read()).decode()
 html = open("./res/index.html", "r").read()
