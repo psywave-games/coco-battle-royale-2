@@ -1,10 +1,24 @@
-<head>
-    <title>{{game}}</title>
-    <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Coco Battle Royale 2</title>
+    <meta name="title" content="Coco Battle Royale 2" />
+    <meta name="description" content="Coco Battle Royale II ココバトル (kokobatoru) 2 is a homebrew game for nintendo years 80 console, distributed as free software. " />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://metatags.io/" />
+    <meta property="og:title" content="Coco Battle Royale 2" />
+    <meta property="og:description" content="Coco Battle Royale II ココバトル (kokobatoru) 2 is a homebrew game for nintendo years 80 console, distributed as free software. " />
+    <meta property="og:image" content="https://metatags.io/images/meta-tags.png" />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://metatags.io/" />
+    <meta property="twitter:title" content="Coco Battle Royale 2" />
+    <meta property="twitter:description" content="Coco Battle Royale II ココバトル (kokobatoru) 2 is a homebrew game for nintendo years 80 console, distributed as free software. " />
+    <meta property="twitter:image" content="https://metatags.io/images/meta-tags.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             width: 100vw;
+            text-align: center;
             background-color: black;
         }
         canvas {
@@ -17,24 +31,90 @@
             image-rendering: pixelated;
             image-rendering: crisp-edges;
         }
-  </style>
-  <script type="text/javascript" src="./nes.js"></script>
-  <script type="text/javascript" >
+        section {
+            font-size: 20vmin;
+            color: white;
+        }
+        .btn {
+            font-size: 8vmin;
+            padding: 8px;
+            margin: 10% 20%;
+            background-color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            cursor: pointer;
+        }
+    </style>
+  </head>
+  <body>
+    <section>loading...</section>
+    <canvas id="gameCanvas" width="256" height="240" style="display: none"></canvas>
+    <span class="btn" data-rom="cocobattleroyale.nes" style="display: none;">Play (USA)<span>🇺🇸</span></span>
+    <span class="btn" data-rom="kokobatoru.nes" style="display: none;">Play (JAP)<span>🇯🇵</span></span>
+    <script type="text/javascript" src="fceux.js"></script>    
+    <script>
     window.addEventListener("DOMContentLoaded", () => {
-        const nes = new NesJs.Nes();
+        const canvas =  document.querySelector('#gameCanvas');
+        const loading = document.querySelector('section');
+        const buttons = document.querySelectorAll('.btn');
 
-        nes.setRom(new NesJs.Rom(Uint8Array.from(atob("{{rom}}"), c => c.charCodeAt(0))));
-        nes.setDisplay(new NesJs.Display(document.querySelector('#gameCanvas')));
-        nes.setAudio(new NesJs.Audio());
+        function start(game) {
+            buttons.forEach(button => button.style.display = 'none');
+            canvas.style.display='block'
 
-        window.onkeydown = function(e) { nes.handleKeyDown(e); };
-        window.onkeyup = function(e) { nes.handleKeyUp(e); };
+            fceux.init('#gameCanvas');
+            fceux.downloadGame(game);
 
-        nes.bootup();
-        nes.run();
-    });
-  </script>
-</head>
-<body>
-    <canvas id="gameCanvas" width="256" height="240"></canvas>
-</body>
+            function updateLoop() {
+                window.requestAnimationFrame(updateLoop);
+                fceux.update();
+            }
+            window.requestAnimationFrame(updateLoop);
+    
+            const keys = [
+                ['KeyF', 'A'],
+                ['KeyD', 'B'],
+                ['KeyS', 'Select'],
+                ['Enter', 'Start'],
+                ['ArrowUp', 'Up'],
+                ['ArrowDown', 'Down'],
+                ['ArrowLeft', 'Left'],
+                ['ArrowRight', 'Right'],
+            ];
+
+            let bits = 0;
+            function keyHandler(ev) {
+                for (let i = 0; i < keys.length; ++i) {
+                    if (ev.code == keys[i][0]) {
+                        if (ev.type == 'keydown') {
+                            bits |= 1 << i;
+                        } else {
+                            bits &= ~(1 << i);
+                        }
+                        fceux.setControllerBits(bits);
+                        ev.preventDefault();
+                    }
+                }
+            }
+            window.addEventListener('keydown', keyHandler);
+            window.addEventListener('keyup', keyHandler);
+        }
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                const game = button.getAttribute('data-rom');
+                start(game);
+            });
+        });
+
+        FCEUX().then((fceux_) => {
+            fceux = fceux_;
+            loading.style.display = 'none';
+            buttons.forEach(button => button.style.display = 'block');
+        });
+    })
+    </script>
+  </body>
+</html>

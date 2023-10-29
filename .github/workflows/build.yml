@@ -60,8 +60,8 @@ jobs:
         name: Build project (Makefile)
         run: make
       -
-        name: Build page (Python)
-        run: ./build-pwa.py --download && ./build-pwa.py --jap
+        name: Build website
+        run: ./fake_npm_install.sh && ./fake_npm_build.sh
       -
         name: Setup Pages
         uses: actions/configure-pages@v3
