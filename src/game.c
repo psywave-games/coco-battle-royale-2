@@ -316,8 +316,8 @@ void game_loop(void)
 
                 /** draw number of coocks **/
                 roosters_total = roosters_count;
-                spr = oam_spr((27 * 8), (1 * 8) -1, digit_lockup[1][roosters_count], 3, spr);
-                spr = oam_spr((28 * 8), (1 * 8) -1, digit_lockup[0][roosters_count], 3, spr);
+                spr = oam_spr((27 * 8) - eqy, (1 * 8) -1 - eqx, digit_lockup[1][roosters_count], 3, spr);
+                spr = oam_spr((28 * 8) + eqx, (1 * 8) -1 + eqy, digit_lockup[0][roosters_count], 3, spr);
 
                 /* put ret edges **/
                 oam_edge(MIN_ARENA_X, MIN_ARENA_Y, MAX_ARENA_X, MAX_ARENA_Y);
