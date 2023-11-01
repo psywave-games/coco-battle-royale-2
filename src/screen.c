@@ -34,11 +34,11 @@ void screen_menu()
     vram_adr(NTADR_A(11,17));
     vram_write(jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS, 9);
 #endif
-#if MAX_PLAYERS > 3
+#if MAX_PLAYERS >= 3
     vram_adr(NTADR_A(11,18));
     vram_write(jp? I18N_JP_3_PLAYERS: I18N_EN_3_PLAYERS, 9);
 #endif
-#if MAX_PLAYERS > 4
+#if MAX_PLAYERS >= 4
     vram_adr(NTADR_A(11,19));
     vram_write(jp? I18N_JP_4_PLAYERS: I18N_EN_4_PLAYERS, 9);
 #endif
