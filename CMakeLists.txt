@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 include("${CMAKE_SOURCE_DIR}/cc65-find.cmake")
+include_directories("${CMAKE_SOURCE_DIR}/lib")
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cc65-toolchain.cmake")
 
 project(kokobatoru C ASM)
@@ -16,11 +17,13 @@ set(CMAKE_EXE_LINKER_FLAGS "-C nrom_128_horz.cfg ${CMAKE_EXE_LINKER_FLAGS}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_executable("kokobatoru"
-    "${CMAKE_SOURCE_DIR}/kokobatoru.c"
+    "${CMAKE_SOURCE_DIR}/src/game.c"
     "${CMAKE_SOURCE_DIR}/asm/crt0.s"
 )
 
 add_executable("cocobattleroyale"
-    "${CMAKE_SOURCE_DIR}/cocobattleroyale.c"
+    "${CMAKE_SOURCE_DIR}/src/game.c"
     "${CMAKE_SOURCE_DIR}/asm/crt0.s"
 )
+
+target_compile_definitions("kokobatoru" PRIVATE FAMICON_VERSION=1)
