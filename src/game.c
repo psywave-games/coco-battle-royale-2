@@ -120,8 +120,7 @@ void game_loop(void)
                 s = CLAMP(s, roosters_count == 0, MAX_PLAYERS);
 
                 /** begin start the game **/
-                i = gamepad[PLAYER_1] & PAD_START; /** start button or insert coin to use all options **/
-                i|= (gamepad_old[PLAYER_1] == 0) && (gamepad[PLAYER_1] & PAD_SELECT) && (s == 0); /* use only resume */
+                i = gamepad[PLAYER_1] & (PAD_START | PAD_A);
 
                 if (i) {
 				    switch (s) {
@@ -361,7 +360,7 @@ static void game_move()
         else if(gamepad[i] & PAD_DOWN) {
             player.y += speed;
         }
-        if ((gamepad[i] & (PAD_B | PAD_A)) && !(gamepad_old[i] & (PAD_B | PAD_A)) && player.framedata == 0) {
+        if ((gamepad[i] ^ gamepad_old[i]) & PAD_A && player.framedata == 0) {
             player.framedata = FRAME_PREPARE;
             player.info.status.attacking = 1;
         }
