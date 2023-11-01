@@ -360,7 +360,7 @@ static void game_move()
         else if(gamepad[i] & PAD_DOWN) {
             player.y += speed;
         }
-        if ((gamepad[i] ^ gamepad_old[i]) & PAD_A && player.framedata == 0) {
+        if ((~gamepad_old[i] & gamepad[i] & PAD_A) && player.framedata == 0) {
             player.framedata = FRAME_PREPARE;
             player.info.status.attacking = 1;
         }
