@@ -16,6 +16,11 @@ set(CMAKE_C_FLAGS "-t nes ${CMAKE_C_FLAGS} -Oi")
 set(CMAKE_EXE_LINKER_FLAGS "-C nrom_128_horz.cfg ${CMAKE_EXE_LINKER_FLAGS}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+add_executable("galinharoyale"
+    "${CMAKE_SOURCE_DIR}/src/game.c"
+    "${CMAKE_SOURCE_DIR}/asm/crt0.s"
+)
+
 add_executable("kokobatoru"
     "${CMAKE_SOURCE_DIR}/src/game.c"
     "${CMAKE_SOURCE_DIR}/asm/crt0.s"
@@ -26,4 +31,5 @@ add_executable("cocobattleroyale"
     "${CMAKE_SOURCE_DIR}/asm/crt0.s"
 )
 
+target_compile_definitions("galinharoyale" PRIVATE FAMICON_VERSION=1 BRAZUKA=1)
 target_compile_definitions("kokobatoru" PRIVATE FAMICON_VERSION=1)

@@ -19,6 +19,9 @@
 #include "micromages.h"
 #include <stdbool.h>
 
+#ifndef BRAZUKA
+#define BRAZUKA                         (0)
+#endif
 #ifndef FAMICON_VERSION
 #define FAMICON_VERSION                 (0)
 #endif
@@ -26,7 +29,7 @@
 #define MAX_ENIMIES                     (20)
 #endif
 #ifndef MAX_PLAYERS
-#define MAX_PLAYERS                     (4)
+#define MAX_PLAYERS                     (6)
 #endif
 #ifndef SPEED
 #define SPEED                           (3)
@@ -66,7 +69,7 @@
 #define SPR_EDGE                        0xD7
 #define SPR_EDGE_1                      0xB9
 #define SPR_EDGE_2                      0xCD
-#define SPR_POINTER                     0xBC
+#define SPR_POINTER                     0x18
 #define SPR_JP_HITO                     0x06
 #define SPR_JP_O                        0x07
 #define SPR_JP_N                        0x0E
@@ -200,13 +203,98 @@ static signed char earthquake;
 static signed char eqx;
 static signed char eqy;
 
+
+/**
+ * @short screen menu
+ */
+const char I18N_CONTINUE[] =
+#if FAMICON_VERSION == 0 || BRAZUKA == 1
+    "CONTINUE!";
+#else
+    {' ', ' ', ' ', SPR_JP_TSU, SPR_JP_DZU, SPR_JP_KU, '\0'};
+#endif
+
+/**
+ * @short screen menu
+ */
+const char I18N_PLAYERS[] =
+#if BRAZUKA == 1
+#if MAX_PLAYERS == 1
+"JOGAR AGORA"
+#else
+"1 JOGADOR"
+#endif
+#if MAX_PLAYERS >= 2
+"\r\n2 JOGADORES"
+#endif
+#if MAX_PLAYERS >= 3
+"\r\n3 JOGADORES"
+#endif
+#if MAX_PLAYERS >= 4
+"\r\n4 JOGADORES"
+#endif
+#if MAX_PLAYERS >= 5
+"\r\n5 JOGADORES"
+#endif
+#if MAX_PLAYERS >= 6
+"\r\n6 JOGADORES"
+#endif
+;
+#elif FAMICON_VERSION == 0
+#if MAX_PLAYERS == 1
+"START GAME"
+#else
+"1 PLAYER"
+#endif
+#if MAX_PLAYERS >= 2
+"\r\n2 PLAYERS"
+#endif
+#if MAX_PLAYERS >= 3
+"\r\n3 PLAYERS"
+#endif
+#if MAX_PLAYERS >= 4
+"\r\n4 PLAYERS"
+#endif
+#if MAX_PLAYERS >= 5
+"\r\n5 PLAYERS"
+#endif
+#if MAX_PLAYERS >= 6
+"\r\n6 PLAYERS"
+#endif
+;
+#else
+{
+    ' ', '1',  SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI,
+#if MAX_PLAYERS >= 2
+    '\r', '\n', ' ', '2',  SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI,
+#endif
+#if MAX_PLAYERS >= 3
+    '\r', '\n',  ' ', '3',  SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI,
+#endif
+#if MAX_PLAYERS >= 4
+    '\r', '\n',  ' ', '4',  SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI,
+#endif
+#if MAX_PLAYERS >= 5
+    '\r', '\n',  ' ', '5',  SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI,
+#endif
+#if MAX_PLAYERS >= 6
+    '\r', '\n',  ' ', '6',  SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI,
+#endif
+    '\0'
+};
+#endif
+/**
+ * @short runtime gameplay
+ */
+const char I18N_COUNT[] =
+#if BRAZUKA == (1)
+"BATALHAREM\xdc\xdc";
+#else
+"STARTINGAT\xdc\xdc";
+#endif
+
+
 const char I18N_EN_SCORE[] = " SCORE: ";
-const char I18N_EN_COUNT[] = "STARTINGAT\xdc\xdc";
-const char I18N_EN_CONTINUE[] = "CONTINUE!";
-const char I18N_EN_1_PLAYERS[] = "1 PLAYERS";
-const char I18N_EN_2_PLAYERS[] = "2 PLAYERS";
-const char I18N_EN_3_PLAYERS[] = "3 PLAYERS";
-const char I18N_EN_4_PLAYERS[] = "4 PLAYERS";
 const char I18N_EN_LOOSER[] = "#XX\r\nYOU ARE FRIED.";
 const char I18N_EN_WINNER[] = "#1\r\nYOU ARE\r\nULTIMATE\r\nHOT CHICKEN!!";
 const char I18N_EN_CREDITS_1[] = "RODRIGO DORNELLES (C) 2022";
@@ -226,22 +314,6 @@ const char I18N_EN_LOGO[] = {
 };
 
 const char jp = FAMICON_VERSION;
-const char I18N_JP_CONTINUE[] = {
-    ' ', ' ', ' ', SPR_JP_TSU, SPR_JP_DZU, SPR_JP_KU, ' ', ' ', ' '
-};
-const char I18N_JP_1_PLAYERS[] = {
-    ' ', '1',  SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, ' '
-};
-const char I18N_JP_2_PLAYERS[] = {
-    ' ', '2', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, ' '
-};
-const char I18N_JP_3_PLAYERS[] = {
-    ' ', '3', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, ' '
-};
-const char I18N_JP_4_PLAYERS[] = {
-    ' ', '4', SPR_JP_HITO, ' ', SPR_JP_O, SPR_JP_N, SPR_JP_DO, SPR_JP_RI, ' '
-};
-
 const char I18N_JP_LOGO[] = {
     0x20, 0xC0, 0xC1, 0xC2, 0xC0, 0xC1, 0xC2, 0x20, 0xC4, 0xF3, 0xD6, 0xF3, 0x20, 0x20, 0xF3, 0xF3, 0x20,
     0x20, 0x20, 0x20, 0xD2, 0x20, 0x20, 0xD2, 0x20, 0xD4, 0xD5, 0x20, 0xEA, 0xE0, 0xE1, 0xEA, 0xEA, 0x20,
@@ -584,10 +656,10 @@ bool anim_count(unsigned char end)
     spr = oam_spr((27 * 8), (1 * 8) -1, '?', 3, spr);
     spr = oam_spr((28 * 8), (1 * 8) -1, '?', 3, spr);
     for (i = 0; i < 8; ++i) {
-        spr = oam_spr(100 + (i << 3), (9 * 8), I18N_EN_COUNT[i], 0, spr); 
+        spr = oam_spr(100 + (i << 3), (9 * 8), I18N_COUNT[i], 0, spr); 
     }
     for (i = 0; i < 4; ++i) {
-        spr = oam_spr(100 + (i << 3), (10 * 8), I18N_EN_COUNT[i + 8], 0, spr); 
+        spr = oam_spr(100 + (i << 3), (10 * 8), I18N_COUNT[i + 8], 0, spr); 
     }
     for (i = 0; i < 3; ++i) {
         spr = oam_spr(100 + (8 * 4) + (i << 3), (10 * 8), ((step_1 >> 3) > i)? '.': ' ', 0, spr);
@@ -646,27 +718,13 @@ void screen_menu()
     put_ret(5, 3, 25, 9);
     put_logo();
     /** put menu options */
-    vram_adr(NTADR_A(11,16));
-    vram_write(jp? I18N_JP_1_PLAYERS: I18N_EN_1_PLAYERS, 9);
-#if MAX_PLAYERS >= 2
-    vram_adr(NTADR_A(11,17));
-    vram_write(jp? I18N_JP_2_PLAYERS: I18N_EN_2_PLAYERS, 9);
-#endif
-#if MAX_PLAYERS >= 3
-    vram_adr(NTADR_A(11,18));
-    vram_write(jp? I18N_JP_3_PLAYERS: I18N_EN_3_PLAYERS, 9);
-#endif
-#if MAX_PLAYERS >= 4
-    vram_adr(NTADR_A(11,19));
-    vram_write(jp? I18N_JP_4_PLAYERS: I18N_EN_4_PLAYERS, 9);
-#endif
+    put_str(NTADR_A(12 - BRAZUKA, 16), I18N_PLAYERS);
     /** put copyright */
     put_str(NTADR_A(3,25), I18N_EN_CREDITS_1);
     put_str(NTADR_A(1,26), I18N_EN_CREDITS_2);
     /** put menu option 'continue' */
     if (roosters_count) {
-        vram_adr(NTADR_A(11,15));
-        vram_write(jp? I18N_JP_CONTINUE: I18N_EN_CONTINUE, 9);
+        put_str(NTADR_A(11,15), I18N_CONTINUE);
     }
     ppu_on_all();
     gamestate = FSM_MENU;
@@ -832,29 +890,22 @@ void game_loop(void)
                 i = gamepad[PLAYER_1] & (PAD_START | PAD_A);
 
                 if (i) {
-				    switch (s) {
-                        case 0:
-                            gamestate = FSM_DRAW_ARENA;
-                            break;
-
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                            joysticks = s;
-                            gamestate = FSM_MUSIC_ARENA;
-                            /** when non-zero is inactive */
-                            for(i = 0; i < 4; i++) {
-                                playerActive[i] = i >= s;
-                            }
-                            break;
+                    if (s == 0) {
+                        gamestate = FSM_DRAW_ARENA;
+                    }
+                    else if (s <= 6) {
+                        joysticks = s;
+                        gamestate = FSM_MUSIC_ARENA;
+                        for(i = 0; i < 4; i++) {
+                            playerActive[i] = i >= s;
+                        }
                     }
                 }
 
                 /** draw option 6, 3, 23, 9 **/
                 spr = 0;
-                spr = oam_spr((10 * 8), (15 * 8) + (s << 3), 0xFC, 0, spr);
-                spr = oam_spr((20 * 8), (15 * 8) + (s << 3), 0xFC, 0, spr);
+                spr = oam_spr((10 * 8), (15 * 8) + (s << 3) - 1, 0xFC, 0, spr);
+                spr = oam_spr((22 * 8), (15 * 8) + (s << 3), 0xFC, 0, spr);
                 oam_edge((6 * 8) - 2, (4 * 8) - 2, (25 * 8) + 2, (9 * 8));
                 /** animate logo*/
                 if (roosters_count == 0) {
