@@ -1,0 +1,76 @@
+{
+    "id": "coco-battle-royale",
+    "name": "Coco Battle Royale 2",
+    "short_name": "Kokobatoru2",
+    "description": "Coco Battle Royale II ココバトル (kokobatoru) 2 is a homebrew game for nintendo years 80 console, distributed as free software.",
+    "start_url": "/coco-battle-royale/",
+    "scope": "https://psywave-games.github.io/coco-battle-royale/",
+    "display": "standalone",
+    "dir": "ltr",
+    "lang": "en",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "orientation": "any",
+    "launch_handler": {
+        "client_mode": "focus-existing"
+    },
+    "prefer_related_applications": false,
+    "related_applications": [
+    ],
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+    "categories": [
+      "games"
+    ],
+    "icons": [
+        {
+            "src": "/coco-battle-royale/coco-144.png",
+            "sizes": "144x144",
+            "purpose": "any",
+            "type": "image/png"
+        },
+        {
+            "src": "/coco-battle-royale/coco-192.png",
+            "sizes": "192x192",
+            "purpose": "any",
+            "type": "image/png"
+        },
+        {
+            "src": "/coco-battle-royale/coco-256.png",
+            "sizes": "256x256",
+            "purpose": "maskable",
+            "type": "image/png"
+        },
+        {
+            "src": "/coco-battle-royale/coco-512.png",
+            "sizes": "512x512",
+            "purpose": "any",
+            "type": "image/png"
+        },
+        {
+            "src": "/coco-battle-royale/coco-144.png",
+            "sizes": "144x144",
+            "purpose": "maskable",
+            "type": "image/png"
+        },
+        {
+            "src": "/coco-battle-royale/coco-192.png",
+            "sizes": "192x192",
+            "purpose": "maskable",
+            "type": "image/png"
+        },
+        {
+            "src": "/coco-battle-royale/coco-256.png",
+            "sizes": "256x256",
+            "purpose": "maskable",
+            "type": "image/png"
+        },
+        {
+            "src": "/coco-battle-royale/coco-512.png",
+            "sizes": "512x512",
+            "purpose": "maskable",
+            "type": "image/png"
+        }
+    ]
+}

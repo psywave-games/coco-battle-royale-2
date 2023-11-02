@@ -2,19 +2,21 @@
 <html lang="en">
   <head>
     <title>Coco Battle Royale 2</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="theme-color" content="#000000"/>
     <meta name="title" content="Coco Battle Royale 2" />
     <meta name="description" content="Coco Battle Royale II ココバトル (kokobatoru) 2 is a homebrew game for nintendo years 80 console, distributed as free software. " />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://metatags.io/" />
     <meta property="og:title" content="Coco Battle Royale 2" />
     <meta property="og:description" content="Coco Battle Royale II ココバトル (kokobatoru) 2 is a homebrew game for nintendo years 80 console, distributed as free software. " />
-    <meta property="og:image" content="https://metatags.io/images/meta-tags.png" />
+    <meta property="og:image" content="https://psywave-games.github.io/coco-battle-royale-2/coco-banner.png" />
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://metatags.io/" />
     <meta property="twitter:title" content="Coco Battle Royale 2" />
     <meta property="twitter:description" content="Coco Battle Royale II ココバトル (kokobatoru) 2 is a homebrew game for nintendo years 80 console, distributed as free software. " />
-    <meta property="twitter:image" content="https://metatags.io/images/meta-tags.png" />
+    <meta property="twitter:image" content="https://psywave-games.github.io/coco-battle-royale-2/coco-banner.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
@@ -117,6 +119,20 @@
             buttons.forEach(button => button.style.display = 'block');
         });
     })
+    </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker
+            .register('pwa.js')
+            .then((registration) => {
+                console.log('Service Worker registered with scope:', registration.scope)
+            })
+            .catch((error) => {
+                console.warn('Service Worker registration failed:', error)
+            })
+        })
+    }
     </script>
   </body>
 </html>
