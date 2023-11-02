@@ -1100,7 +1100,7 @@ void game_loop(void)
 	
 }
 
-static void game_move()
+void game_move()
 {
     /** player input **/
     if (i < joysticks) {
