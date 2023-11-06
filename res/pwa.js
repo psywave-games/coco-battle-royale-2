@@ -4,6 +4,7 @@ const urlsToCache = [
     'index.html',
     'favicon.ico',
     'fceux.js',
+    'gamepadzilla.js',
     'fceux.wasm',
     'cocobattleroyale.nes',
     'galinharoyale.nes',

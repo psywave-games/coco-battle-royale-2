@@ -24,13 +24,14 @@
             text-align: center;
             background-color: black;
         }
-        canvas {
+        #gameCanvas {
             width: 100vmin;
+        }
+        canvas {
             padding-left: 0;
             padding-right: 0;
             margin-left: auto;
             margin-right: auto;
-            display: block;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
         }
@@ -44,29 +45,42 @@
             margin: 15vh 20%;
             background-color: white;
         }
-
         .btn:hover {
             opacity: 0.9;
             cursor: pointer;
         }
+        .gpz-btn, .gpz-joy {
+            width: 25vw;
+        }
     </style>
   </head>
-  <body>
+  <body style="touch-action: none">
     <section>loading...</section>
     <canvas id="gameCanvas" width="256" height="240" style="display: none"></canvas>
+    <div id="gamepad" style="display: flex">
+        <canvas width="128" height="128"
+            style="display: none"
+            class="gpz-joy"
+            data-gpz-bind="ArrowUp ArrowLeft ArrowDown ArrowRight">
+        </canvas>
+        <canvas width="128" height="128"
+            style="display: none"
+            class="gpz-btn"
+            data-gpz-bind="KeyF">
+        </canvas>
+    </div>
     <span class="btn" data-rom="cocobattleroyale.nes" style="display: none;">Play (USA)<span>🇺🇸</span></span>
     <span class="btn" data-rom="kokobatoru.nes" style="display: none;">Play (JAP)<span>🇯🇵</span></span>
     <span class="btn" data-rom="galinharoyale.nes" style="display: none;">Play (BRA)<span>🇧🇷</span></span>
-    <script type="text/javascript" src="fceux.js"></script>    
     <script>
     window.addEventListener("DOMContentLoaded", () => {
-        const canvas =  document.querySelector('#gameCanvas');
-        const loading = document.querySelector('section');
-        const buttons = document.querySelectorAll('.btn');
+        const loading = document.querySelector('section')
+        const buttons = document.querySelectorAll('.btn')
+        const canvas = document.querySelectorAll('canvas')
 
-        function start(game) {
-            buttons.forEach(button => button.style.display = 'none');
-            canvas.style.display='block'
+        function start(game) {  
+            buttons.forEach(el => el.style.display = 'none')
+            canvas.forEach(el => el.style.display = 'block')
 
             fceux.init('#gameCanvas');
             fceux.downloadGame(game);
@@ -133,6 +147,11 @@
             })
         })
     }
+    if (/Win|Mac|Linux/.test(navigator.platform)) {
+        document.querySelector('#gamepad').style.display='none'
+    }
     </script>
+    <script type="text/javascript" src="gamepadzilla.js"></script>
+    <script type="text/javascript" src="fceux.js"></script>    
   </body>
 </html>
