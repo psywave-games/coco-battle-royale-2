@@ -17,8 +17,11 @@
     <meta property="twitter:title" content="Coco Battle Royale 2" />
     <meta property="twitter:description" content="Coco Battle Royale II ココバトル (kokobatoru) 2 is a homebrew game for nintendo years 80 console, distributed as free software. " />
     <meta property="twitter:image" content="https://psywave-games.github.io/coco-battle-royale-2/coco-banner.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <style>
+        *, *::after, *::before {
+            touch-action: none;
+        }
         body {
             width: 100vw;
             text-align: center;
@@ -26,6 +29,9 @@
         }
         #gameCanvas {
             width: 100vmin;
+        }
+        #gamepad canvas {
+            width: 49%;
         }
         canvas {
             padding-left: 0;
@@ -54,7 +60,7 @@
         }
     </style>
   </head>
-  <body style="touch-action: none">
+  <body>
     <section>loading...</section>
     <canvas id="gameCanvas" width="256" height="240" style="display: none"></canvas>
     <div id="gamepad" style="display: flex">
