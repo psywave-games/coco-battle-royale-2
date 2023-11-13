@@ -20,10 +20,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <style>
         *, *::after, *::before {
-            touch-action: none;
+            touch-action: manipulation;
+            box-sizing: border-box;
+            border: 0;
+            padding: 0;
+            margin: 0;
         }
         body {
-            width: 100vw;
+            width: 100%;
             text-align: center;
             background-color: black;
         }
@@ -31,10 +35,8 @@
             width: 100vmin;
         }
         canvas {
-            padding-left: 0;
-            padding-right: 0;
-            margin-left: auto;
-            margin-right: auto;
+            width: 100%;
+            margin: auto auto;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
         }
@@ -52,26 +54,41 @@
             opacity: 0.9;
             cursor: pointer;
         }
-        .gpz-btn, .gpz-joy {
-            width: 25vw;
+        canvas:nth-child(1) {
+            grid-area: game;
+        }
+        canvas:nth-child(2) {
+            grid-area: pad1;
+        }
+        canvas:nth-child(3) {
+            grid-area: pad2;
+        }
+        main {
+            display: grid;
+            grid-template-areas: 'game game' 'pad1 pad2';
+        }
+        @media (min-aspect-ratio: 1/1) {
+            main {
+                grid-template-areas: 'pad1 game pad2';
+            }
         }
     </style>
   </head>
   <body>
     <section>loading...</section>
-    <canvas id="gameCanvas" width="256" height="240" style="display: none"></canvas>
-    <div id="gamepad" style="display: flex">
-        <canvas width="128" height="256"
+    <main>
+        <canvas id="gameCanvas" width="256" height="240" style="display: none"></canvas>
+        <canvas width="128" height="128"
             style="display: none"
             class="gpz-joy"
             data-gpz-bind="ArrowUp ArrowLeft ArrowDown ArrowRight">
         </canvas>
-        <canvas width="128" height="256"
+        <canvas width="128" height="128"
             style="display: none"
             class="gpz-btn"
             data-gpz-bind="KeyF">
         </canvas>
-    </div>
+    </main>
     <span class="btn" data-rom="cocobattleroyale.nes" style="display: none;">Play (USA)<span>🇺🇸</span></span>
     <span class="btn" data-rom="kokobatoru.nes" style="display: none;">Play (JAP)<span>🇯🇵</span></span>
     <span class="btn" data-rom="galinharoyale.nes" style="display: none;">Play (BRA)<span>🇧🇷</span></span>
@@ -83,7 +100,9 @@
 
         function start(game) {  
             buttons.forEach(el => el.style.display = 'none')
-            canvas.forEach(el => el.style.display = 'block')
+            const isMobile = !(/Win|Mac|Linux/.test(navigator.platform))
+            Array.from(canvas).filter((_, index) => index == 0 || isMobile)
+                .forEach(el => el.style.display = 'block')
 
             fceux.init('#gameCanvas');
             fceux.downloadGame(game);
@@ -149,9 +168,6 @@
                 console.warn('Service Worker registration failed:', error)
             })
         })
-    }
-    if (/Win|Mac|Linux/.test(navigator.platform)) {
-        document.querySelector('#gamepad').style.display='none'
     }
     </script>
     <script type="text/javascript" src="gamepadzilla.js"></script>
